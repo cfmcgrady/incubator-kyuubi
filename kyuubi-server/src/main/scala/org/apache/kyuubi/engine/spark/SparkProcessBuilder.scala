@@ -52,7 +52,17 @@ class SparkProcessBuilder(
 
   import SparkProcessBuilder._
 
-  private[kyuubi] val sparkHome = getEngineHome(shortName)
+  var isIdeaRun = Utils.isTesting
+  isIdeaRun = true
+
+  private[kyuubi] val sparkHome = {
+    if (isIdeaRun) {
+      "/Users/fchen/Software/spark-3.3.1-bin-hadoop3"
+//      "/Users/fchen/Software/spark-3.2.2-bin-hadoop3.2"
+    } else {
+      getEngineHome(shortName)
+    }
+  }
 
   override protected val executable: String = {
     Paths.get(sparkHome, "bin", SPARK_SUBMIT_FILE).toFile.getCanonicalPath
@@ -144,6 +154,22 @@ class SparkProcessBuilder(
       case Some(name) =>
         setSparkUserName(name, buffer)
     }
+
+    if (isIdeaRun) {
+      buffer += "--driver-class-path"
+      val classLoader = ClassLoader.getSystemClassLoader()
+      val urls = classLoader.asInstanceOf[java.net.URLClassLoader].getURLs
+      val path = urls.map(_.toString)
+        .filterNot(_.contains("netty"))
+        .filterNot(_.contains("paranamer"))
+        .filterNot(_.contains("hive"))
+        .mkString(":")
+      buffer += path
+    }
+
+    mainResource.foreach { r => buffer += r }
+
+    buffer.toArray
   }
 
   private def tryKeytab(): Option[String] = {

@@ -61,7 +61,8 @@ module:server
   - "bin/kyuubi"
   - "kyuubi-server/**/*"
 
-# module:plugin
+module:plugin
+  - "kyuubi-server-plugin/**/*"
 
 module:ctl
   - "bin/beeline"

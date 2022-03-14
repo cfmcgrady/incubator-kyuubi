@@ -34,6 +34,7 @@ class KyuubiSparkSQLExtension extends (SparkSessionExtensions => Unit) {
 
     extensions.injectPostHocResolutionRule(RebalanceBeforeWritingDatasource)
     extensions.injectPostHocResolutionRule(RebalanceBeforeWritingHive)
+
     extensions.injectPostHocResolutionRule(DropIgnoreNonexistent)
 
     // watchdog extension

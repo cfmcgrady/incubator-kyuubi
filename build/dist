@@ -25,6 +25,7 @@
 # It does not contain source or *.class files.
 
 set -o pipefail
+
 set -e
 
 KYUUBI_HOME="$(cd "`dirname "$0"`/.."; pwd)"

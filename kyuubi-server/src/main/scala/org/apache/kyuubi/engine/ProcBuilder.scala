@@ -132,14 +132,15 @@ trait ProcBuilder {
   }
 
   final lazy val processBuilder: ProcessBuilder = {
+    // scalastyle:off
     val pb = new ProcessBuilder(commands: _*)
 
     val envs = pb.environment()
     envs.putAll(env.asJava)
     pb.directory(workingDir.toFile)
-    pb.redirectError(engineLog)
-    pb.redirectOutput(engineLog)
-    extraEngineLog.foreach(_.addExtraLog(engineLog.toPath))
+//    pb.redirectError(engineLog)
+//    pb.redirectOutput(engineLog)
+//    extraEngineLog.foreach(_.addExtraLog(engineLog.toPath))
     pb
   }
 
@@ -191,6 +192,58 @@ trait ProcBuilder {
 
   final def start: Process = synchronized {
     process = processBuilder.start()
+
+    val t1 = new Thread(new Runnable {
+      override def run(): Unit = {
+        val reader = new java.io.BufferedReader(
+          new java.io.InputStreamReader(process.getInputStream()))
+        var line: String = reader.readLine()
+        while (line != null) {
+          println("--- stdout start----")
+          println(line)
+          println("--- stdout end----")
+          line = reader.readLine()
+        }
+        println("line is null stdout")
+      }
+    })
+    t1.start()
+
+    val t2 = new Thread(new Runnable {
+      override def run(): Unit = {
+        //        while(true) {
+        //          Thread.sleep(1000)
+        //          val lines = scala.io.Source.fromInputStream(process.getErrorStream).getLines()
+        //          println("--- stderr start----")
+        //          println(lines.mkString("\n"))
+        //          println("--- stderr end----")
+        //        }
+
+        val reader = new java.io.BufferedReader(
+          new java.io.InputStreamReader(process.getErrorStream()))
+        var line: String = reader.readLine()
+        while (line != null) {
+          println("--- stderr start----")
+          println(line)
+          println("--- stderr end----")
+          line = reader.readLine()
+        }
+        println("line is null stderr")
+      }
+    })
+    t2.start()
+
+//    val t = new Thread(new Runnable {
+//      override def run(): Unit = {
+//        while(true) {
+//          Thread.sleep(1000)
+//          val lines = scala.io.Source.fromInputStream(process.getInputStream).getLines()
+//          println(lines.mkString("\n"))
+//        }
+//      }
+//    })
+//    t.start()
+
     val reader = Files.newBufferedReader(engineLog.toPath, StandardCharsets.UTF_8)
 
     val redirect: Runnable = { () =>

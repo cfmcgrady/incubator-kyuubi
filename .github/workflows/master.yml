@@ -62,6 +62,8 @@ jobs:
       - name: Build and test with maven w/o linters
         run: >-
           ./build/mvn clean install
+          -am -pl kyuubi-server
+          -DwildcardSuites=org.apache.kyuubi.engine.JpsApplicationOperationSuite
           -Dmaven.javadoc.skip=true
           -Drat.skip=true
           -Dscalastyle.skip=true

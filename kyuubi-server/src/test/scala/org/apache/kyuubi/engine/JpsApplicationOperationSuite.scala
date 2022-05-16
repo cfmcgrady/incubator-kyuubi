@@ -83,6 +83,8 @@ class JpsApplicationOperationSuite extends KyuubiFunSuite {
       assert(desc1("state") === "RUNNING")
     }
 
+    Thread.sleep(10 * 1000)
+
     val response = jps.killApplicationByTag(id)
     assert(response._1, response._2)
     assert(response._2 startsWith "Succeeded to terminate:")

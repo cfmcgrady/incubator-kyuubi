@@ -63,7 +63,7 @@ class JpsApplicationOperation extends ApplicationOperation {
       val idAndCmd = commandOption.get
       val (id, _) = idAndCmd.splitAt(idAndCmd.indexOf(" "))
       try {
-        s"kill -15 $id".lineStream
+        s"kill -15 $id" !!
         (true, s"Succeeded to terminate: $idAndCmd")
       } catch {
         case e: Exception =>

@@ -66,6 +66,7 @@ class JpsApplicationOperationSuite extends KyuubiFunSuite {
   }
 
   test("JpsApplicationOperation with spark local mode") {
+    ProcBuilder.set
     val user = Utils.currentUser
     val id = UUID.randomUUID().toString
     val conf = new KyuubiConf()
@@ -98,5 +99,6 @@ class JpsApplicationOperationSuite extends KyuubiFunSuite {
     val response2 = jps.killApplicationByTag(id)
     assert(!response2._1)
     assert(response2._2 === ApplicationOperation.NOT_FOUND)
+    ProcBuilder.reset
   }
 }

@@ -1970,6 +1970,7 @@
             </properties>
             <modules>
                 <module>extensions/spark/kyuubi-extension-spark-common</module>
+                <module>extensions/spark/kyuubi-spark-authz</module>
                 <module>extensions/spark/kyuubi-extension-spark-3-3</module>
             </modules>
         </profile>

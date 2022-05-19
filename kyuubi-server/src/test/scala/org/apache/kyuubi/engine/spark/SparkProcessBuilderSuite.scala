@@ -80,7 +80,7 @@ class SparkProcessBuilderSuite extends KerberizedTestHelper with MockitoSugar wi
     pb.start
     Given(Map(
       "spark.hive.metastore.uris" -> "thrift://dummy",
-      KyuubiConf.ENGINE_ERROR_MAX_SIZE.key -> conf.get(KyuubiConf.ENGINE_ERROR_MAX_SIZE)))
+      KyuubiConf.ENGINE_ERROR_MAX_SIZE.key -> conf.get(KyuubiConf.ENGINE_ERROR_MAX_SIZE)).toString)
     eventually(timeout(90.seconds), interval(500.milliseconds)) {
       val error1 = pb.getError
       // scalastyle: off
@@ -97,7 +97,7 @@ class SparkProcessBuilderSuite extends KerberizedTestHelper with MockitoSugar wi
     pb2.start
     Given(Map(
       "spark.hive.metastore.uris" -> "thrift://dummy",
-      KyuubiConf.ENGINE_ERROR_MAX_SIZE.key -> conf.get(KyuubiConf.ENGINE_ERROR_MAX_SIZE)))
+      KyuubiConf.ENGINE_ERROR_MAX_SIZE.key -> conf.get(KyuubiConf.ENGINE_ERROR_MAX_SIZE)).toString)
     eventually(timeout(90.seconds), interval(500.milliseconds)) {
       val error1 = pb2.getError
       println(s"--- for debug: $error1")
@@ -111,7 +111,7 @@ class SparkProcessBuilderSuite extends KerberizedTestHelper with MockitoSugar wi
     pb3.start
     Given(Map(
       "spark.kerberos.principal" -> testPrincipal,
-      KyuubiConf.ENGINE_ERROR_MAX_SIZE.key -> conf.get(KyuubiConf.ENGINE_ERROR_MAX_SIZE)))
+      KyuubiConf.ENGINE_ERROR_MAX_SIZE.key -> conf.get(KyuubiConf.ENGINE_ERROR_MAX_SIZE)).toString)
     eventually(timeout(90.seconds), interval(500.milliseconds)) {
       val error1 = pb3.getError
       println(s"--- for debug: $error1")

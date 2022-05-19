@@ -63,7 +63,7 @@ jobs:
         run: >-
           ./build/mvn clean install
           -am -pl kyuubi-server
-          -Pflink-provided,spark-provided,hive-provided -DwildcardSuites=org.apache.kyuubi.engine.spark.SparkProcessBuilderSuite
+          -Pflink-provided,hive-provided -DwildcardSuites=org.apache.kyuubi.engine.spark.SparkProcessBuilderSuite
           -Dmaven.javadoc.skip=true
           -Drat.skip=true
           -Dscalastyle.skip=true

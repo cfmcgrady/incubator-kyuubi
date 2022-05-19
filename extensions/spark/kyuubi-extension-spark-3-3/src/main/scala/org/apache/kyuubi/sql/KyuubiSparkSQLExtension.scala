@@ -18,7 +18,6 @@
 package org.apache.kyuubi.sql
 
 import org.apache.spark.sql.SparkSessionExtensions
-
 import org.apache.kyuubi.sql.watchdog.{ForcedMaxOutputRowsRule, MaxPartitionStrategy}
 
 // scalastyle:off line.size.limit

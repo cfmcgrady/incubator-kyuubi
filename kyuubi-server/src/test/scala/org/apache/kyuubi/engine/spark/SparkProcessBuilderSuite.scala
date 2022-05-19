@@ -83,8 +83,8 @@ class SparkProcessBuilderSuite extends KerberizedTestHelper with MockitoSugar wi
       KyuubiConf.ENGINE_ERROR_MAX_SIZE.key -> conf.get(KyuubiConf.ENGINE_ERROR_MAX_SIZE)).toString)
     eventually(timeout(90.seconds), interval(500.milliseconds)) {
       val error1 = pb.getError
-      // scalastyle: off
-      println(s"--- for debug: $error1")
+      // scalastyle:off
+      println(s"--- for debug error1: $error1")
       assert(!error1.getMessage.contains("Failed to detect the root cause"))
       assert(error1.getMessage.contains("See more: "))
       assert(error1.getMessage.contains(msg))
@@ -100,7 +100,7 @@ class SparkProcessBuilderSuite extends KerberizedTestHelper with MockitoSugar wi
       KyuubiConf.ENGINE_ERROR_MAX_SIZE.key -> conf.get(KyuubiConf.ENGINE_ERROR_MAX_SIZE)).toString)
     eventually(timeout(90.seconds), interval(500.milliseconds)) {
       val error1 = pb2.getError
-      println(s"--- for debug: $error1")
+      println(s"--- for debug error2: $error1")
       assert(!error1.getMessage.contains("Failed to detect the root cause"))
       assert(error1.getMessage.contains("See more: "))
       assert(!error1.getMessage.contains(msg), "stack trace shall be truncated")
@@ -114,7 +114,7 @@ class SparkProcessBuilderSuite extends KerberizedTestHelper with MockitoSugar wi
       KyuubiConf.ENGINE_ERROR_MAX_SIZE.key -> conf.get(KyuubiConf.ENGINE_ERROR_MAX_SIZE)).toString)
     eventually(timeout(90.seconds), interval(500.milliseconds)) {
       val error1 = pb3.getError
-      println(s"--- for debug: $error1")
+      println(s"--- for debug error3: $error1")
       assert(!error1.getMessage.contains("Failed to detect the root cause"))
       assert(error1.getMessage.contains("See more: "))
       assert(error1.getMessage.contains("Only one of --proxy-user or --principal can be provided"))

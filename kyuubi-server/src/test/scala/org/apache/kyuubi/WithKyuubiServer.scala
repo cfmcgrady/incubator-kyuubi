@@ -36,6 +36,21 @@ trait WithKyuubiServer extends KyuubiFunSuite {
   protected var server: KyuubiServer = _
 
   override def beforeAll(): Unit = {
+
+    // scalastyle:off
+    try {
+      val jps = sys.env.get("JAVA_HOME").orElse(sys.props.get("java.home"))
+        .map(java.nio.file.Paths.get(_, "bin", "jps").toString)
+        .getOrElse("jps")
+      import scala.sys.process._
+      val pb = s"$jps -ml"
+      println("------alive process-----")
+      pb.lineStream_!.foreach(println)
+      println("------alive process-----")
+    } catch {
+      case e: Exception =>
+        e.printStackTrace()
+    }
     conf.set(FRONTEND_PROTOCOLS, frontendProtocols.map(_.toString))
     conf.set(FRONTEND_THRIFT_BINARY_BIND_PORT, 0)
     conf.set(FRONTEND_REST_BIND_PORT, 0)

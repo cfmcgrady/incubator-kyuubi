@@ -62,6 +62,8 @@ trait WithKyuubiServer extends KyuubiFunSuite {
   }
 
   override def afterAll(): Unit = {
+    // scalastyle:off
+    println("invoke....1")
     server.frontendServices.foreach {
       case frontend: AbstractFrontendService =>
         val sessionManager = frontend.be.sessionManager.asInstanceOf[KyuubiSessionManager]
@@ -71,16 +73,19 @@ trait WithKyuubiServer extends KyuubiFunSuite {
         }
       case _ =>
     }
+    println("invoke....2")
 
     if (server != null) {
       server.stop()
       server = null
     }
+    println("invoke....3")
 
     if (zkServer != null) {
       zkServer.stop()
       zkServer = null
     }
+    println("invoke....4")
     super.afterAll()
   }
 

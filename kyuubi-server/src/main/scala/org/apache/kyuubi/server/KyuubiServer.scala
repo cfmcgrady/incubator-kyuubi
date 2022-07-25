@@ -114,7 +114,10 @@ class KyuubiServer(name: String) extends Serverable(name) {
   override val backendService: AbstractBackendService =
     new KyuubiBackendService() with BackendServiceMetric
 
-  override lazy val frontendServices: Seq[AbstractFrontendService] =
+  override lazy val frontendServices: Seq[AbstractFrontendService] = {
+    // scalastyle:off
+    println("-------debug info-------")
+    conf.get(FRONTEND_PROTOCOLS).foreach(println)
     conf.get(FRONTEND_PROTOCOLS).map(FrontendProtocols.withName).map {
       case THRIFT_BINARY => new KyuubiTBinaryFrontendService(this)
       case THRIFT_HTTP => new KyuubiTHttpFrontendService(this)
@@ -127,6 +130,7 @@ class KyuubiServer(name: String) extends Serverable(name) {
       case other =>
         throw new UnsupportedOperationException(s"Frontend protocol $other is not supported yet.")
     }
+  }
 
   override def initialize(conf: KyuubiConf): Unit = synchronized {
     initLoggerEventHandler(conf)

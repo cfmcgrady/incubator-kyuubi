@@ -57,7 +57,8 @@ jobs:
           kubectl get serviceaccount
       - name: integration tests
         run: >-
-          ./build/mvn ${MVN_OPT} clean install
+          ./build/mvn ${MVN_OPT} clean package
+          -pl externals/kyuubi-download,integration-tests/kyuubi-kubernetes-it
           -Pflink-provided,hive-provided
           -Pkubernetes-it
           -Dtest=none -DwildcardSuites=org.apache.kyuubi.kubernetes.test.spark

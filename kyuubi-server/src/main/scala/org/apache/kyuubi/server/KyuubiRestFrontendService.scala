@@ -203,7 +203,7 @@ class KyuubiRestFrontendService(override val serverable: Serverable)
 }
 
 object KyuubiRestFrontendService {
-  @volatile private var connectionUrl: String = _
+  private var connectionUrl: String = _
 
   def getConnectionUrl: String = connectionUrl
 }

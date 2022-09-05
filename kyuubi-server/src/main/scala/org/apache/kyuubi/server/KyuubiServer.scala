@@ -67,6 +67,7 @@ object KyuubiServer extends Logging {
   }
 
   def main(args: Array[String]): Unit = {
+    info("debug")
     info(
       """
         |                  Welcome to

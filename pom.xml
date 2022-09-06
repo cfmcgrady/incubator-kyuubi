@@ -88,6 +88,7 @@
         <module>kyuubi-hive-jdbc</module>
         <module>kyuubi-hive-jdbc-shaded</module>
         <module>kyuubi-metrics</module>
+        <module>kyuubi-module-not-found</module>
         <module>kyuubi-rest-client</module>
         <module>kyuubi-server</module>
         <module>kyuubi-zookeeper</module>

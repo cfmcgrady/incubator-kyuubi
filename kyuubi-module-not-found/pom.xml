@@ -27,7 +27,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>kyuubi-module-not-found.12</artifactId>
+    <artifactId>kyuubi-module-not-found_2.12</artifactId>
     <name>Kyuubi Project Common</name>
     <packaging>jar</packaging>
     <url>https://kyuubi.apache.org/</url>

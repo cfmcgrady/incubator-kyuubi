@@ -32,13 +32,22 @@ trait WithKyuubiServerAndDorisContainer extends WithKyuubiServer with WithDorisE
       .set(s"$KYUUBI_ENGINE_ENV_PREFIX.$KYUUBI_HOME", kyuubiHome)
       .set(
         ENGINE_JDBC_EXTRA_CLASSPATH,
-        Utils.getContextOrKyuubiClassLoader.getResource(
-          "mysql/mysql-connector-java-8.0.30.jar").toURI.getPath)
+        getMysqlJarPath())
   }
+
 
   override def beforeAll(): Unit = {
     val configs = withKyuubiConf
     configs.foreach(config => conf.set(config._1, config._2))
     super.beforeAll()
+  }
+
+  private def getMysqlJarPath(): String = {
+    val classLoader = ClassLoader.getSystemClassLoader()
+    val urls = classLoader.asInstanceOf[java.net.URLClassLoader].getURLs
+    val path = urls.map(_.toString)
+      .filter(_.contains("mysql-connector-java"))
+    assert(path.length == 1)
+    path.head
   }
 }

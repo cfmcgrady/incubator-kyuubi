@@ -66,21 +66,22 @@ class SessionSigningSuite extends WithKyuubiServer with HiveJDBCTestHelper {
   }
 
   test("KYUUBI #3839 session user sign - check session user sign") {
-    withSessionConf()()() {
-      withJdbcStatement() { statement =>
-        val rs1 = statement.executeQuery(s"SET $KYUUBI_SESSION_SIGN_PUBLICKEY")
-        assert(rs1.next())
-        assert(rs1.getString("value").nonEmpty)
+    (1 to 100000).foreach { i =>
+      withSessionConf()()() {
+        withJdbcStatement() { statement =>
+          val rs1 = statement.executeQuery(s"SET $KYUUBI_SESSION_SIGN_PUBLICKEY")
+          assert(rs1.next())
+          assert(rs1.getString("value").nonEmpty)
 
-        val rs2 = statement.executeQuery(s"SET $KYUUBI_SESSION_USER_SIGN")
-        assert(rs2.next())
-        assert(rs2.getString("value").nonEmpty)
+          val rs2 = statement.executeQuery(s"SET $KYUUBI_SESSION_USER_SIGN")
+          assert(rs2.next())
+          assert(rs2.getString("value").nonEmpty)
 
-        val publicKeyStr = rs1.getString("value")
-        val sessionUserSign = rs2.getString("value")
-        assert(SignUtils.verifySignWithECDSA(user, sessionUserSign, publicKeyStr))
+          val publicKeyStr = rs1.getString("value")
+          val sessionUserSign = rs2.getString("value")
+          assert(SignUtils.verifySignWithECDSA(user, sessionUserSign, publicKeyStr))
+        }
       }
     }
   }
-
 }

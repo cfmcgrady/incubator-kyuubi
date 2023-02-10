@@ -89,7 +89,6 @@ jobs:
         with:
           repository: apache/spark
           path: ./spark
-          token: ${{ secrets.my_pat }}
 
       - name: build spark 
         run: ./spark/build/sbt package

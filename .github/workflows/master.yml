@@ -82,10 +82,10 @@ jobs:
           ref: branch-3.4
           path: ./spark
 
-          # - name: build spark 
-          # run: |
-          # export MAVEN_OPTS="-Xss64m -Xmx4g -XX:ReservedCodeCacheSize=1g"
-          # cd ./spark && ./build/mvn -Phive -Pkubernetes -DskipTests clean package
+      - name: build spark 
+        run: |
+          export MAVEN_OPTS="-Xss64m -Xmx4g -XX:ReservedCodeCacheSize=1g"
+          cd ./spark && ./build/mvn -Phive -Pkubernetes -DskipTests clean package
 
       - name: Build and test Kyuubi and Spark with maven w/o linters
         run: |
@@ -93,7 +93,7 @@ jobs:
           TEST_MODULES="dev/kyuubi-codecov"
           ./build/mvn clean install ${MVN_OPT} -pl ${TEST_MODULES} -am \
           -Pspark-${{ matrix.spark }} ${{ matrix.exclude-tags }} \
-          -Pspark-provided,flink-provided,hive-provided
+          -Pspark-provided
       - name: Upload test logs
         if: failure()
         uses: actions/upload-artifact@v3

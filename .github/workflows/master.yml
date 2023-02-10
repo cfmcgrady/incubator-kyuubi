@@ -92,14 +92,17 @@ jobs:
           path: ./spark
 
       - name: build spark 
-        run: cd ./spark && ./build/mvn -Phive -Pkubernetes -DskipTests clean package
+        run: |
+          export MAVEN_OPTS="-Xss64m -Xmx4g -XX:ReservedCodeCacheSize=1g"
+          cd ./spark && ./build/mvn -Phive -Pkubernetes -DskipTests clean package
 
       - name: Build and test Kyuubi and Spark with maven w/o linters
         run: |
           SPARK_HOME=./spark
           TEST_MODULES="dev/kyuubi-codecov"
           ./build/mvn clean install ${MVN_OPT} -pl ${TEST_MODULES} -am \
-          -Pspark-${{ matrix.spark }} ${{ matrix.spark-archive }} ${{ matrix.exclude-tags }}
+          -Pspark-${{ matrix.spark }} ${{ matrix.spark-archive }} ${{ matrix.exclude-tags }} \
+          -Pspark-provided,flink-provided,hive-provided
       - name: Code coverage
         if: |
           matrix.java == 8 &&

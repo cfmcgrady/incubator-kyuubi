@@ -88,6 +88,7 @@ jobs:
         uses: actions/checkout@master
         with:
           repository: apache/spark
+          ref: branch-3.4
           path: ./spark
 
       - name: build spark 

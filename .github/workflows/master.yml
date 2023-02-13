@@ -89,7 +89,7 @@ jobs:
 
       - name: Build and test Kyuubi and Spark with maven w/o linters
         run: |
-          export SPARK_HOME=./spark &&
+          export SPARK_HOME=/home/runner/work/incubator-kyuubi/incubator-kyuubi/spark &&
           TEST_MODULES="dev/kyuubi-codecov"
           ./build/mvn clean install ${MVN_OPT} -pl ${TEST_MODULES} -am \
           -Pspark-${{ matrix.spark }} ${{ matrix.exclude-tags }} \

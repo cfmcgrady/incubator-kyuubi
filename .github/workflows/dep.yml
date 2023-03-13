@@ -45,12 +45,12 @@ jobs:
           java-version: 8
           cache: 'maven'
           check-latest: false
-      - name: Setup Mvnd
+      - name: Setup Maven and Mvnd
         uses: ./.github/actions/setup-mvnd
       - name: Check kyuubi modules available
         id: modules-check
         run: >-
-          build/mvnd dependency:resolve validate
+          build/mvnd dependency:resolve validate -q
           -DincludeGroupIds="org.apache.kyuubi" -DincludeScope="compile"
           -Pfast -Denforcer.skip=false
           -pl kyuubi-ctl,kyuubi-server,kyuubi-assembly -am

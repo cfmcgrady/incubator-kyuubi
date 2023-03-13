@@ -167,12 +167,12 @@
         <jetty.version>9.4.50.v20221201</jetty.version>
         <jline.version>0.9.94</jline.version>
         <junit.version>4.13.2</junit.version>
-        <kubernetes-client.version>5.12.1</kubernetes-client.version>
+        <kubernetes-client.version>6.4.1</kubernetes-client.version>
         <kudu.version>1.15.0</kudu.version>
         <ldapsdk.version>6.0.5</ldapsdk.version>
-        <log4j.version>2.19.0</log4j.version>
+        <log4j.version>2.20.0</log4j.version>
         <mysql.jdbc.version>8.0.32</mysql.jdbc.version>
-        <netty.version>4.1.87.Final</netty.version>
+        <netty.version>4.1.89.Final</netty.version>
         <parquet.version>1.10.1</parquet.version>
         <phoenix.version>6.0.0</phoenix.version>
         <prometheus.version>0.16.0</prometheus.version>
@@ -202,6 +202,11 @@
         <trino.tpch.version>1.1</trino.tpch.version>
         <zookeeper.version>3.4.14</zookeeper.version>
 
+        <!-- webui -->
+        <webui.skip>true</webui.skip>
+        <node.version>v16.19.1</node.version>
+        <pnpm.version>v7.27.1</pnpm.version>
+
         <!-- apply to kyuubi-hive-jdbc/kyuubi-hive-beeline module -->
         <hive.client.jline.version>2.12</hive.client.jline.version>
         <hive.client.supercsv.version>2.2.0</hive.client.supercsv.version>
@@ -215,6 +220,7 @@
         <maven.plugin.download.version>1.6.8</maven.plugin.download.version>
         <maven.plugin.download.cache.path></maven.plugin.download.cache.path>
         <maven.plugin.enforcer.mojo.rules.version>1.6.1</maven.plugin.enforcer.mojo.rules.version>
+        <maven.plugin.frontend.version>1.12.1</maven.plugin.frontend.version>
         <maven.plugin.scala.version>4.8.0</maven.plugin.scala.version>
         <maven.plugin.surefire.version>3.0.0-M8</maven.plugin.surefire.version>
         <maven.plugin.scalatest.version>2.2.0</maven.plugin.scalatest.version>
@@ -587,6 +593,16 @@
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>kubernetes-client</artifactId>
+                <version>${kubernetes-client.version}</version>
+            </dependency>
+            <!--
+                according to kubernetes-client MIGRATION-v6.md, we should include this dependency
+                for doing any customization to OkHttp clients.
+                https://github.com/fabric8io/kubernetes-client/blob/master/doc/MIGRATION-v6.md#okhttp-httpclient
+            -->
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>kubernetes-httpclient-okhttp</artifactId>
                 <version>${kubernetes-client.version}</version>
             </dependency>
 
@@ -1991,6 +2007,9 @@
                             <fileset>
                                 <directory>${project.basedir}/spark-warehouse</directory>
                             </fileset>
+                            <fileset>
+                                <directory>${project.basedir}/web-ui/dist</directory>
+                            </fileset>
                         </filesets>
                     </configuration>
                 </plugin>
@@ -2074,6 +2093,9 @@
                                 <include>*/README.md</include>
                                 <include>docker/playground/README.md</include>
                             </includes>
+                            <excludes>
+                                <exclude>docs/*/lib/python*/**/*.md</exclude>
+                            </excludes>
                             <flexmark>
                                 <version>${flexmark.version}</version>
                             </flexmark>
@@ -2143,6 +2165,16 @@
                             <version>${maven.plugin.enforcer.mojo.rules.version}</version>
                         </dependency>
                     </dependencies>
+                </plugin>
+
+                <plugin>
+                    <groupId>com.github.eirslett</groupId>
+                    <artifactId>frontend-maven-plugin</artifactId>
+                    <version>${maven.plugin.frontend.version}</version>
+                    <configuration>
+                        <nodeVersion>${node.version}</nodeVersion>
+                        <pnpmVersion>${pnpm.version}</pnpmVersion>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -2228,9 +2260,11 @@
     <profiles>
         <profile>
             <id>mirror-cdn</id>
-            <!-- this profile works only for latest apache releases -->
             <properties>
+                <!-- the apache cdn mirror works only for latest apache releases -->
                 <apache.archive.dist>https://dlcdn.apache.org</apache.archive.dist>
+                <nodeDownloadRoot>https://npmmirror.com/mirrors/node/</nodeDownloadRoot>
+                <pnpmDownloadRoot>https://registry.npmmirror.com/pnpm/-/</pnpmDownloadRoot>
             </properties>
         </profile>
 
@@ -2418,6 +2452,13 @@
                 <flink.archive.download.skip>true</flink.archive.download.skip>
                 <hive.archive.download.skip>true</hive.archive.download.skip>
                 <spark.archive.download.skip>true</spark.archive.download.skip>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>web-ui</id>
+            <properties>
+                <webui.skip>false</webui.skip>
             </properties>
         </profile>
 

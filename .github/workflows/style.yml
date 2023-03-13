@@ -34,7 +34,7 @@ jobs:
     strategy:
       matrix:
         profiles:
-          - '-Pflink-provided,hive-provided,spark-provided,spark-block-cleaner,spark-3.3,spark-3.2,spark-3.1,tpcds'
+          - '-Pflink-provided,hive-provided,spark-provided,spark-block-cleaner,spark-3.3,spark-3.2,spark-3.1,tpcds,kubernetes-it'
 
     steps:
       - uses: actions/checkout@v3
@@ -45,7 +45,7 @@ jobs:
           java-version: 8
           cache: 'maven'
           check-latest: false
-      - name: Setup Mvnd
+      - name: Setup Maven and Mvnd
         uses: ./.github/actions/setup-mvnd
       - name: Setup Python 3
         uses: actions/setup-python@v4
@@ -54,7 +54,7 @@ jobs:
           cache: 'pip'
       - name: Check kyuubi modules available
         id: modules-check
-        run: build/mvnd dependency:resolve -DincludeGroupIds="org.apache.kyuubi" -DincludeScope="compile" -DexcludeTransitive=true ${{ matrix.profiles }}
+        run: build/mvnd dependency:resolve -DincludeGroupIds="org.apache.kyuubi" -DincludeScope="compile" -DexcludeTransitive=true -q ${{ matrix.profiles }}
         continue-on-error: true
 
       - name: Install
@@ -69,7 +69,7 @@ jobs:
 
       - name: Scalastyle with maven
         id: scalastyle-check
-        run: build/mvnd scalastyle:check ${{ matrix.profiles }}
+        run: build/mvnd scalastyle:check -q ${{ matrix.profiles }}
       - name: Print scalastyle error report
         if: failure() && steps.scalastyle-check.outcome != 'success'
         run: >-
@@ -83,7 +83,7 @@ jobs:
         run: |
           SPOTLESS_BLACK_VERSION=$(build/mvn help:evaluate -Dexpression=spotless.python.black.version -q -DforceStdout)
           pip install black==$SPOTLESS_BLACK_VERSION
-          build/mvnd spotless:check ${{ matrix.profiles }} -Pspotless-python
+          build/mvnd spotless:check -q ${{ matrix.profiles }} -Pspotless-python
       - name: setup npm
         uses: actions/setup-node@v3
         with:

@@ -60,8 +60,6 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: 'maven'
           check-latest: false
-      - name: Cache Engine Archives
-        uses: ./.github/actions/cache-engine-archives
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -74,7 +72,6 @@ jobs:
             key: docs-maven-${{ hashFiles('**/pom.xml') }}
             restore-keys: |
                 docs-maven-
-
       - name: checkout spark master
         uses: actions/checkout@master
         with:
@@ -86,7 +83,6 @@ jobs:
         run: |
           export MAVEN_OPTS="-Xss64m -Xmx4g -XX:ReservedCodeCacheSize=1g"
           cd ./spark && ./build/mvn -Phive -Pkubernetes -DskipTests clean package
-
       - name: Build and test Kyuubi and Spark with maven w/o linters
         run: |
           export SPARK_HOME=/home/runner/work/incubator-kyuubi/incubator-kyuubi/spark &&

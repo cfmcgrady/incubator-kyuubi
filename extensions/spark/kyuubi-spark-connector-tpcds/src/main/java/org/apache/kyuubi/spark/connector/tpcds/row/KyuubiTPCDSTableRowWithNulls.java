@@ -3,6 +3,7 @@ package org.apache.kyuubi.spark.connector.tpcds.row;
 import io.trino.tpcds.generator.GeneratorColumn;
 import io.trino.tpcds.row.TableRowWithNulls;
 import java.util.List;
+
 import scala.None$;
 import scala.Option;
 import scala.Some;

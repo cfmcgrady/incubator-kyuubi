@@ -17,7 +17,7 @@
 
 package org.apache.kyuubi.spark.connector.tpcds
 
-import java.lang.{Iterable => JIterable}
+import java.lang.{Iterable => JIterable, Long => JLong}
 import java.lang.reflect.InvocationTargetException
 import java.util.{Iterator => JIterator}
 
@@ -142,18 +142,18 @@ class KyuubiResultsIterator(
         case (None | null, _) => null
         case (Some(Options.DEFAULT_NULL_STRING), _) => null
         case (Some(v: Boolean), _) => if (v) TRUE_STRING else FALSE_STRING
-        case (Some(v: Int), IntegerType) => v
-        case (Some(v: Long), IntegerType) => v.toInt
-        case (Some(v: Int), LongType) => v.toLong
-        case (Some(v: Long), LongType) => v
-        case (Some(v: Long), DateType) =>
+        case (Some(v: Integer), IntegerType) => v
+        case (Some(v: JLong), IntegerType) => v.toInt
+        case (Some(v: Integer), LongType) => v.toLong
+        case (Some(v: JLong), LongType) => v
+        case (Some(v: JLong), DateType) =>
           RebaseDateTime.rebaseJulianToGregorianDays(v.toInt) - DateTimeUtils.JULIAN_DAY_OF_EPOCH
         case (Some(v), StringType) => UTF8String.fromString(v.toString)
         case (Some(v), CharType(_)) => UTF8String.fromString(v.toString)
         case (Some(v), VarcharType(_)) => UTF8String.fromString(v.toString)
         case (Some(v: TPCDSDecimal), t: DecimalType) =>
           Decimal(v.getNumber, t.precision, t.scale)
-        case (Some(v: Int), t: DecimalType) =>
+        case (Some(v: Integer), t: DecimalType) =>
           val decimal = Decimal(v)
           decimal.changePrecision(t.precision, t.scale)
           decimal

@@ -176,6 +176,38 @@
                             <include>org.apache.kyuubi:*</include>
                         </includes>
                     </artifactSet>
+                    <filters>
+                        <filter>
+                            <artifact>io.trino.tpcds:tpcds</artifact>
+                            <excludes>
+                                <exclude>io/trino/tpcds/row/CallCenterRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/CatalogPageRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/CatalogReturnsRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/CatalogSalesRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/CustomerAddressRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/CustomerDemographicsRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/CustomerRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/DateDimRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/DbgenVersionRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/HouseholdDemographicsRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/IncomeBandRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/InventoryRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/ItemRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/PromotionRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/ReasonRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/ShipModeRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/StoreReturnsRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/StoreRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/StoreSalesRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/TimeDimRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/WarehouseRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/WebPageRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/WebReturnsRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/WebSalesRow.class</exclude>
+                                <exclude>io/trino/tpcds/row/WebSiteRow.class</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                     <relocations>
                         <relocation>
                             <pattern>com.google.common</pattern>

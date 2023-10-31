@@ -152,14 +152,45 @@ class TPCDSCatalogSuite extends KyuubiFunSuite {
     withSparkSession(SparkSession.builder.config(sparkConf).getOrCreate()) { spark =>
       tableInfo.foreach {
         case (table, (expectCount, expectChecksum)) =>
-          val (count, checksum) = countAndchecksum(spark, table)
+          val (count, checksum) = countAndChecksum(spark, table)
           assert(count == expectCount)
           assert(checksum == expectChecksum, s"table $table")
       }
     }
   }
 
-  def countAndchecksum(spark: SparkSession, tableName: String): (String, String) = {
+  test("aa") {
+    val sparkConf = new SparkConf()
+      .setMaster("local[*]")
+      .set("spark.ui.enabled", "false")
+      .set("spark.sql.catalogImplementation", "in-memory")
+      .set("spark.sql.catalog.tpcds", classOf[TPCDSCatalog].getName)
+      .set("spark.sql.cbo.enabled", "true")
+      .set("spark.sql.cbo.planStats.enabled", "true")
+    withSparkSession(SparkSession.builder.config(sparkConf).getOrCreate()) { spark =>
+      tableInfo.foreach {
+        case (table, (expectCount, expectChecksum)) =>
+          println(table)
+          spark.table(table).printSchema()
+      }
+    }
+  }
+
+  test("bb") {
+    val sparkConf = new SparkConf()
+      .setMaster("local[*]")
+      .set("spark.ui.enabled", "false")
+      .set("spark.sql.catalogImplementation", "in-memory")
+      .set("spark.sql.catalog.tpcds", classOf[TPCDSCatalog].getName)
+      .set("spark.sql.cbo.enabled", "true")
+      .set("spark.sql.cbo.planStats.enabled", "true")
+    withSparkSession(SparkSession.builder.config(sparkConf).getOrCreate()) { spark =>
+      spark.table("tpcds.tiny.web_page").show(1)
+//      spark.sql("select cs_sold_date_sk from tpcds.tiny.catalog_sales").show(1)
+    }
+  }
+
+  def countAndChecksum(spark: SparkSession, tableName: String): (String, String) = {
     val df = spark.table(tableName)
     val cols = df.schema.map { field =>
       concat(

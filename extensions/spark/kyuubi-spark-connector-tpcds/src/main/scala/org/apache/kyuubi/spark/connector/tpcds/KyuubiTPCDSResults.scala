@@ -32,7 +32,7 @@ import org.apache.spark.sql.types.{CharType, DateType, Decimal, DecimalType, Int
 import org.apache.spark.unsafe.types.UTF8String
 
 import org.apache.kyuubi.spark.connector.tpcds.KyuubiResultsIterator.{FALSE_STRING, TRUE_STRING}
-import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTableRows
+import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls
 
 class KyuubiTPCDSResults(
     val table: Table,
@@ -109,7 +109,12 @@ class KyuubiResultsIterator(
       childRowGenerator.orNull)
     var row: InternalRow = null
     if (!result.getRowAndChildRows.isEmpty) {
-      row = toInternalRow(KyuubiTableRows.getValues(result.getRowAndChildRows.get(0)))
+      row = toInternalRow(
+        result.getRowAndChildRows
+          .get(0)
+          .asInstanceOf[KyuubiTPCDSTableRowWithNulls]
+          .values
+          .asInstanceOf[Array[Any]])
     }
 
     if (result.shouldEndRow) {

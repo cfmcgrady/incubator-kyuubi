@@ -16,12 +16,6 @@
  */
 package io.trino.tpcds.row;
 
-import io.trino.tpcds.type.Decimal;
-import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
-
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 import static io.trino.tpcds.generator.ItemGeneratorColumn.I_BRAND;
 import static io.trino.tpcds.generator.ItemGeneratorColumn.I_BRAND_ID;
 import static io.trino.tpcds.generator.ItemGeneratorColumn.I_CATEGORY;
@@ -45,13 +39,16 @@ import static io.trino.tpcds.generator.ItemGeneratorColumn.I_SIZE;
 import static io.trino.tpcds.generator.ItemGeneratorColumn.I_UNITS;
 import static io.trino.tpcds.generator.ItemGeneratorColumn.I_WHOLESALE_COST;
 
+import io.trino.tpcds.type.Decimal;
+import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
+
 public class ItemRow extends KyuubiTPCDSTableRowWithNulls {
   private final long iItemSk;
   private final String iItemId;
   private final long iRecStartDateId;
   private final long iRecEndDateId;
   private final String iItemDesc;
-  private final Decimal iCurrentPrice;    // list price
+  private final Decimal iCurrentPrice; // list price
   private final Decimal iWholesaleCost;
   private final long iBrandId;
   private final String iBrand;
@@ -70,11 +67,30 @@ public class ItemRow extends KyuubiTPCDSTableRowWithNulls {
   private final String iProductName;
   private final long iPromoSk;
 
-  public ItemRow(long nullBitMap, long iItemSk, String iItemId, long iRecStartDateId,
-      long iRecEndDateId, String iItemDesc, Decimal iCurrentPrice, Decimal iWholesaleCost,
-      long iBrandId, String iBrand, long iClassId, String iClass, long iCategoryId,
-      String iCategory, long iManufactId, String iManufact, String iSize, String iFormulation,
-      String iColor, String iUnits, String iContainer, long iManagerId, String iProductName,
+  public ItemRow(
+      long nullBitMap,
+      long iItemSk,
+      String iItemId,
+      long iRecStartDateId,
+      long iRecEndDateId,
+      String iItemDesc,
+      Decimal iCurrentPrice,
+      Decimal iWholesaleCost,
+      long iBrandId,
+      String iBrand,
+      long iClassId,
+      String iClass,
+      long iCategoryId,
+      String iCategory,
+      long iManufactId,
+      String iManufact,
+      String iSize,
+      String iFormulation,
+      String iColor,
+      String iUnits,
+      String iContainer,
+      long iManagerId,
+      String iProductName,
       long iPromoSk) {
     super(nullBitMap, I_ITEM_SK);
     this.iItemSk = iItemSk;
@@ -194,30 +210,31 @@ public class ItemRow extends KyuubiTPCDSTableRowWithNulls {
     return iPromoSk;
   }
 
-  @Override public Object[] values() {
+  @Override
+  public Object[] values() {
     return new Object[] {
-        getOrNullForKey(iItemSk, I_ITEM_SK),
-        getOrNull(iItemId, I_ITEM_ID),
-        getDateOrNullFromJulianDays(iRecStartDateId, I_REC_START_DATE_ID),
-        getDateOrNullFromJulianDays(iRecEndDateId, I_REC_END_DATE_ID),
-        getOrNull(iItemDesc, I_ITEM_DESC),
-        getOrNull(iCurrentPrice, I_CURRENT_PRICE),
-        getOrNull(iWholesaleCost, I_WHOLESALE_COST),
-        getOrNullForKey(iBrandId, I_BRAND_ID),
-        getOrNull(iBrand, I_BRAND),
-        getOrNullForKey(iClassId, I_CLASS_ID),
-        getOrNull(iClass, I_CLASS),
-        getOrNullForKey(iCategoryId, I_CATEGORY_ID),
-        getOrNull(iCategory, I_CATEGORY),
-        getOrNullForKey(iManufactId, I_MANUFACT_ID),
-        getOrNull(iManufact, I_MANUFACT),
-        getOrNull(iSize, I_SIZE),
-        getOrNull(iFormulation, I_FORMULATION),
-        getOrNull(iColor, I_COLOR),
-        getOrNull(iUnits, I_UNITS),
-        getOrNull(iContainer, I_CONTAINER),
-        getOrNullForKey(iManagerId, I_MANAGER_ID),
-        getOrNull(iProductName, I_PRODUCT_NAME)
+      getOrNullForKey(iItemSk, I_ITEM_SK),
+      getOrNull(iItemId, I_ITEM_ID),
+      getDateOrNullFromJulianDays(iRecStartDateId, I_REC_START_DATE_ID),
+      getDateOrNullFromJulianDays(iRecEndDateId, I_REC_END_DATE_ID),
+      getOrNull(iItemDesc, I_ITEM_DESC),
+      getOrNull(iCurrentPrice, I_CURRENT_PRICE),
+      getOrNull(iWholesaleCost, I_WHOLESALE_COST),
+      getOrNullForKey(iBrandId, I_BRAND_ID),
+      getOrNull(iBrand, I_BRAND),
+      getOrNullForKey(iClassId, I_CLASS_ID),
+      getOrNull(iClass, I_CLASS),
+      getOrNullForKey(iCategoryId, I_CATEGORY_ID),
+      getOrNull(iCategory, I_CATEGORY),
+      getOrNullForKey(iManufactId, I_MANUFACT_ID),
+      getOrNull(iManufact, I_MANUFACT),
+      getOrNull(iSize, I_SIZE),
+      getOrNull(iFormulation, I_FORMULATION),
+      getOrNull(iColor, I_COLOR),
+      getOrNull(iUnits, I_UNITS),
+      getOrNull(iContainer, I_CONTAINER),
+      getOrNullForKey(iManagerId, I_MANAGER_ID),
+      getOrNull(iProductName, I_PRODUCT_NAME)
     };
   }
 }

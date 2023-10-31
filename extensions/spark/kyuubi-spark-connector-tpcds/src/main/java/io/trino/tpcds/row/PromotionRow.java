@@ -1,34 +1,29 @@
 package io.trino.tpcds.row;
 
-    import io.trino.tpcds.type.Decimal;
-    import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_CATALOG;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_DEMO;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_DETAILS;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_DMAIL;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_EMAIL;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_EVENT;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_PRESS;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_RADIO;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_TV;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_COST;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_DISCOUNT_ACTIVE;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_END_DATE_ID;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_ITEM_SK;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_PROMO_ID;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_PROMO_NAME;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_PROMO_SK;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_PURPOSE;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_RESPONSE_TARGET;
+import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_START_DATE_ID;
 
-    import java.util.List;
+import io.trino.tpcds.type.Decimal;
+import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
 
-    import static com.google.common.collect.Lists.newArrayList;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_CATALOG;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_DEMO;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_DETAILS;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_DMAIL;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_EMAIL;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_EVENT;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_PRESS;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_RADIO;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_CHANNEL_TV;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_COST;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_DISCOUNT_ACTIVE;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_END_DATE_ID;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_ITEM_SK;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_PROMO_ID;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_PROMO_NAME;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_PROMO_SK;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_PURPOSE;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_RESPONSE_TARGET;
-    import static io.trino.tpcds.generator.PromotionGeneratorColumn.P_START_DATE_ID;
-
-public class PromotionRow
-    extends KyuubiTPCDSTableRowWithNulls
-{
+public class PromotionRow extends KyuubiTPCDSTableRowWithNulls {
   private final long pPromoSk;
   private final String pPromoId;
   private final long pStartDateId;
@@ -49,7 +44,8 @@ public class PromotionRow
   private final String pPurpose;
   private final boolean pDiscountActive;
 
-  public PromotionRow(long nullBitMap,
+  public PromotionRow(
+      long nullBitMap,
       long pPromoSk,
       String pPromoId,
       long pStartDateId,
@@ -68,8 +64,7 @@ public class PromotionRow
       boolean pChannelDemo,
       String pChannelDetails,
       String pPurpose,
-      boolean pDiscountActive)
-  {
+      boolean pDiscountActive) {
     super(nullBitMap, P_PROMO_SK);
     this.pPromoSk = pPromoSk;
     this.pPromoId = pPromoId;
@@ -167,27 +162,29 @@ public class PromotionRow
   public boolean ispDiscountActive() {
     return pDiscountActive;
   }
-  @Override public Object[] values() {
+
+  @Override
+  public Object[] values() {
     return new Object[] {
-        getOrNullForKey(pPromoSk, P_PROMO_SK),
-        getOrNull(pPromoId, P_PROMO_ID),
-        getOrNullForKey(pStartDateId, P_START_DATE_ID),
-        getOrNullForKey(pEndDateId, P_END_DATE_ID),
-        getOrNullForKey(pItemSk, P_ITEM_SK),
-        getOrNull(pCost, P_COST),
-        getOrNull(pResponseTarget, P_RESPONSE_TARGET),
-        getOrNull(pPromoName, P_PROMO_NAME),
-        getOrNullForBoolean(pChannelDmail, P_CHANNEL_DMAIL),
-        getOrNullForBoolean(pChannelEmail, P_CHANNEL_EMAIL),
-        getOrNullForBoolean(pChannelCatalog, P_CHANNEL_CATALOG),
-        getOrNullForBoolean(pChannelTv, P_CHANNEL_TV),
-        getOrNullForBoolean(pChannelRadio, P_CHANNEL_RADIO),
-        getOrNullForBoolean(pChannelPress, P_CHANNEL_PRESS),
-        getOrNullForBoolean(pChannelEvent, P_CHANNEL_EVENT),
-        getOrNullForBoolean(pChannelDemo, P_CHANNEL_DEMO),
-        getOrNull(pChannelDetails, P_CHANNEL_DETAILS),
-        getOrNull(pPurpose, P_PURPOSE),
-        getOrNullForBoolean(pDiscountActive, P_DISCOUNT_ACTIVE)
+      getOrNullForKey(pPromoSk, P_PROMO_SK),
+      getOrNull(pPromoId, P_PROMO_ID),
+      getOrNullForKey(pStartDateId, P_START_DATE_ID),
+      getOrNullForKey(pEndDateId, P_END_DATE_ID),
+      getOrNullForKey(pItemSk, P_ITEM_SK),
+      getOrNull(pCost, P_COST),
+      getOrNull(pResponseTarget, P_RESPONSE_TARGET),
+      getOrNull(pPromoName, P_PROMO_NAME),
+      getOrNullForBoolean(pChannelDmail, P_CHANNEL_DMAIL),
+      getOrNullForBoolean(pChannelEmail, P_CHANNEL_EMAIL),
+      getOrNullForBoolean(pChannelCatalog, P_CHANNEL_CATALOG),
+      getOrNullForBoolean(pChannelTv, P_CHANNEL_TV),
+      getOrNullForBoolean(pChannelRadio, P_CHANNEL_RADIO),
+      getOrNullForBoolean(pChannelPress, P_CHANNEL_PRESS),
+      getOrNullForBoolean(pChannelEvent, P_CHANNEL_EVENT),
+      getOrNullForBoolean(pChannelDemo, P_CHANNEL_DEMO),
+      getOrNull(pChannelDetails, P_CHANNEL_DETAILS),
+      getOrNull(pPurpose, P_PURPOSE),
+      getOrNullForBoolean(pDiscountActive, P_DISCOUNT_ACTIVE)
     };
   }
 }

@@ -1,19 +1,16 @@
 package io.trino.tpcds.row;
 
-    import java.util.List;
+import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_CATALOG_NUMBER;
+import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_CATALOG_PAGE_ID;
+import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_CATALOG_PAGE_NUMBER;
+import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_CATALOG_PAGE_SK;
+import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_DEPARTMENT;
+import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_DESCRIPTION;
+import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_END_DATE_ID;
+import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_START_DATE_ID;
+import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_TYPE;
 
-    import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
-
-    import static com.google.common.collect.Lists.newArrayList;
-    import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_CATALOG_NUMBER;
-    import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_CATALOG_PAGE_ID;
-    import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_CATALOG_PAGE_NUMBER;
-    import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_CATALOG_PAGE_SK;
-    import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_DEPARTMENT;
-    import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_DESCRIPTION;
-    import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_END_DATE_ID;
-    import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_START_DATE_ID;
-    import static io.trino.tpcds.generator.CatalogPageGeneratorColumn.CP_TYPE;
+import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
 
 public class CatalogPageRow extends KyuubiTPCDSTableRowWithNulls {
   private final long cpCatalogPageSk;
@@ -26,7 +23,8 @@ public class CatalogPageRow extends KyuubiTPCDSTableRowWithNulls {
   private final String cpDescription;
   private final String cpType;
 
-  public CatalogPageRow(long cpCatalogPageSk,
+  public CatalogPageRow(
+      long cpCatalogPageSk,
       String cpCatalogPageId,
       long cpStartDateId,
       long cpEndDateId,
@@ -35,8 +33,7 @@ public class CatalogPageRow extends KyuubiTPCDSTableRowWithNulls {
       int cpCatalogPageNumber,
       String cpDescription,
       String cpType,
-      long nullBitMap)
-  {
+      long nullBitMap) {
     super(nullBitMap, CP_CATALOG_PAGE_SK);
     this.cpCatalogPageSk = cpCatalogPageSk;
     this.cpCatalogPageId = cpCatalogPageId;
@@ -85,17 +82,18 @@ public class CatalogPageRow extends KyuubiTPCDSTableRowWithNulls {
     return cpType;
   }
 
-  @Override public Object[] values() {
+  @Override
+  public Object[] values() {
     return new Object[] {
-        getOrNullForKey(cpCatalogPageSk, CP_CATALOG_PAGE_SK),
-        getOrNull(cpCatalogPageId, CP_CATALOG_PAGE_ID),
-        getOrNullForKey(cpStartDateId, CP_START_DATE_ID),
-        getOrNullForKey(cpEndDateId, CP_END_DATE_ID),
-        getOrNull(cpDepartment, CP_DEPARTMENT),
-        getOrNull(cpCatalogNumber, CP_CATALOG_NUMBER),
-        getOrNull(cpCatalogPageNumber, CP_CATALOG_PAGE_NUMBER),
-        getOrNull(cpDescription, CP_DESCRIPTION),
-        getOrNull(cpType, CP_TYPE)
+      getOrNullForKey(cpCatalogPageSk, CP_CATALOG_PAGE_SK),
+      getOrNull(cpCatalogPageId, CP_CATALOG_PAGE_ID),
+      getOrNullForKey(cpStartDateId, CP_START_DATE_ID),
+      getOrNullForKey(cpEndDateId, CP_END_DATE_ID),
+      getOrNull(cpDepartment, CP_DEPARTMENT),
+      getOrNull(cpCatalogNumber, CP_CATALOG_NUMBER),
+      getOrNull(cpCatalogPageNumber, CP_CATALOG_PAGE_NUMBER),
+      getOrNull(cpDescription, CP_DESCRIPTION),
+      getOrNull(cpType, CP_TYPE)
     };
   }
 }

@@ -17,13 +17,6 @@
 
 package io.trino.tpcds.row;
 
-import io.trino.tpcds.type.Address;
-import io.trino.tpcds.type.Decimal;
-import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
-
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 import static io.trino.tpcds.generator.StoreGeneratorColumn.W_STORE_ADDRESS_CITY;
 import static io.trino.tpcds.generator.StoreGeneratorColumn.W_STORE_ADDRESS_COUNTRY;
 import static io.trino.tpcds.generator.StoreGeneratorColumn.W_STORE_ADDRESS_COUNTY;
@@ -55,6 +48,10 @@ import static io.trino.tpcds.generator.StoreGeneratorColumn.W_STORE_SK;
 import static io.trino.tpcds.generator.StoreGeneratorColumn.W_STORE_TAX_PERCENTAGE;
 import static java.lang.String.format;
 
+import io.trino.tpcds.type.Address;
+import io.trino.tpcds.type.Decimal;
+import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
+
 public class StoreRow extends KyuubiTPCDSTableRowWithNulls {
 
   private final long storeSk;
@@ -78,7 +75,8 @@ public class StoreRow extends KyuubiTPCDSTableRowWithNulls {
   private final String companyName;
   private final Address address;
 
-  public StoreRow(long nullBitMap,
+  public StoreRow(
+      long nullBitMap,
       long storeSk,
       String storeId,
       long recStartDateId,
@@ -98,8 +96,7 @@ public class StoreRow extends KyuubiTPCDSTableRowWithNulls {
       String divisionName,
       long companyId,
       String companyName,
-      Address address)
-  {
+      Address address) {
     super(nullBitMap, W_STORE_SK);
     this.storeSk = storeSk;
     this.storeId = storeId;
@@ -159,92 +156,82 @@ public class StoreRow extends KyuubiTPCDSTableRowWithNulls {
     return companyName;
   }
 
-  public long getClosedDateId()
-  {
+  public long getClosedDateId() {
     return closedDateId;
   }
 
-  public String getStoreName()
-  {
+  public String getStoreName() {
     return storeName;
   }
 
-  public int getEmployees()
-  {
+  public int getEmployees() {
     return employees;
   }
 
-  public int getFloorSpace()
-  {
+  public int getFloorSpace() {
     return floorSpace;
   }
 
-  public String getHours()
-  {
+  public String getHours() {
     return hours;
   }
 
-  public String getStoreManager()
-  {
+  public String getStoreManager() {
     return storeManager;
   }
 
-  public int getMarketId()
-  {
+  public int getMarketId() {
     return marketId;
   }
 
-  public Decimal getdTaxPercentage()
-  {
+  public Decimal getdTaxPercentage() {
     return dTaxPercentage;
   }
 
-  public String getMarketDesc()
-  {
+  public String getMarketDesc() {
     return marketDesc;
   }
 
-  public String getMarketManager()
-  {
+  public String getMarketManager() {
     return marketManager;
   }
 
-  public Address getAddress()
-  {
+  public Address getAddress() {
     return address;
   }
 
-  @Override public Object[] values() {
+  @Override
+  public Object[] values() {
     return new Object[] {
-        getOrNullForKey(storeSk, W_STORE_SK),
-        getOrNull(storeId, W_STORE_ID),
-        getDateOrNullFromJulianDays(recStartDateId, W_STORE_REC_START_DATE_ID),
-        getDateOrNullFromJulianDays(recEndDateId, W_STORE_REC_END_DATE_ID),
-        getOrNullForKey(closedDateId, W_STORE_CLOSED_DATE_ID),
-        getOrNull(storeName, W_STORE_NAME),
-        getOrNull(employees, W_STORE_EMPLOYEES),
-        getOrNull(floorSpace, W_STORE_FLOOR_SPACE),
-        getOrNull(hours, W_STORE_HOURS),
-        getOrNull(storeManager, W_STORE_MANAGER),
-        getOrNull(marketId, W_STORE_MARKET_ID),
-        getOrNull(geographyClass, W_STORE_GEOGRAPHY_CLASS),
-        getOrNull(marketDesc, W_STORE_MARKET_DESC),
-        getOrNull(marketManager, W_STORE_MARKET_MANAGER),
-        getOrNullForKey(divisionId, W_STORE_DIVISION_ID),
-        getOrNull(divisionName, W_STORE_DIVISION_NAME),
-        getOrNullForKey(companyId, W_STORE_COMPANY_ID),
-        getOrNull(companyName, W_STORE_COMPANY_NAME),
-        getOrNull(address.getStreetNumber(), W_STORE_ADDRESS_STREET_NUM),
-        getOrNull(address.getStreetName(), W_STORE_ADDRESS_STREET_NAME1),
-        getOrNull(address.getStreetType(), W_STORE_ADDRESS_STREET_TYPE),
-        getOrNull(address.getSuiteNumber(), W_STORE_ADDRESS_SUITE_NUM),
-        getOrNull(address.getCity(), W_STORE_ADDRESS_CITY),
-        getOrNull(address.getCounty(), W_STORE_ADDRESS_COUNTY),
-        getOrNull(address.getState(), W_STORE_ADDRESS_STATE),
-        getOrNull(format("%05d", address.getZip()), W_STORE_ADDRESS_ZIP),
-        getOrNull(address.getCountry(), W_STORE_ADDRESS_COUNTRY),
-        getOrNull(address.getGmtOffset(), W_STORE_ADDRESS_GMT_OFFSET),
-        getOrNull(dTaxPercentage, W_STORE_TAX_PERCENTAGE)
+      getOrNullForKey(storeSk, W_STORE_SK),
+      getOrNull(storeId, W_STORE_ID),
+      getDateOrNullFromJulianDays(recStartDateId, W_STORE_REC_START_DATE_ID),
+      getDateOrNullFromJulianDays(recEndDateId, W_STORE_REC_END_DATE_ID),
+      getOrNullForKey(closedDateId, W_STORE_CLOSED_DATE_ID),
+      getOrNull(storeName, W_STORE_NAME),
+      getOrNull(employees, W_STORE_EMPLOYEES),
+      getOrNull(floorSpace, W_STORE_FLOOR_SPACE),
+      getOrNull(hours, W_STORE_HOURS),
+      getOrNull(storeManager, W_STORE_MANAGER),
+      getOrNull(marketId, W_STORE_MARKET_ID),
+      getOrNull(geographyClass, W_STORE_GEOGRAPHY_CLASS),
+      getOrNull(marketDesc, W_STORE_MARKET_DESC),
+      getOrNull(marketManager, W_STORE_MARKET_MANAGER),
+      getOrNullForKey(divisionId, W_STORE_DIVISION_ID),
+      getOrNull(divisionName, W_STORE_DIVISION_NAME),
+      getOrNullForKey(companyId, W_STORE_COMPANY_ID),
+      getOrNull(companyName, W_STORE_COMPANY_NAME),
+      getOrNull(address.getStreetNumber(), W_STORE_ADDRESS_STREET_NUM),
+      getOrNull(address.getStreetName(), W_STORE_ADDRESS_STREET_NAME1),
+      getOrNull(address.getStreetType(), W_STORE_ADDRESS_STREET_TYPE),
+      getOrNull(address.getSuiteNumber(), W_STORE_ADDRESS_SUITE_NUM),
+      getOrNull(address.getCity(), W_STORE_ADDRESS_CITY),
+      getOrNull(address.getCounty(), W_STORE_ADDRESS_COUNTY),
+      getOrNull(address.getState(), W_STORE_ADDRESS_STATE),
+      getOrNull(format("%05d", address.getZip()), W_STORE_ADDRESS_ZIP),
+      getOrNull(address.getCountry(), W_STORE_ADDRESS_COUNTRY),
+      getOrNull(address.getGmtOffset(), W_STORE_ADDRESS_GMT_OFFSET),
+      getOrNull(dTaxPercentage, W_STORE_TAX_PERCENTAGE)
     };
   }
 }

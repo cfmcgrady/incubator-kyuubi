@@ -1,31 +1,26 @@
 package io.trino.tpcds.row;
 
-    import java.util.List;
+import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_BIRTH_COUNTRY;
+import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_BIRTH_DAY;
+import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_BIRTH_MONTH;
+import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_BIRTH_YEAR;
+import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_CURRENT_ADDR_SK;
+import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_CURRENT_CDEMO_SK;
+import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_CURRENT_HDEMO_SK;
+import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_CUSTOMER_ID;
+import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_CUSTOMER_SK;
+import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_EMAIL_ADDRESS;
+import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_FIRST_NAME;
+import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_FIRST_SALES_DATE_ID;
+import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_FIRST_SHIPTO_DATE_ID;
+import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_LAST_NAME;
+import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_LAST_REVIEW_DATE;
+import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_PREFERRED_CUST_FLAG;
+import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_SALUTATION;
 
-    import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
+import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
 
-    import static com.google.common.collect.Lists.newArrayList;
-    import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_BIRTH_COUNTRY;
-    import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_BIRTH_DAY;
-    import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_BIRTH_MONTH;
-    import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_BIRTH_YEAR;
-    import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_CURRENT_ADDR_SK;
-    import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_CURRENT_CDEMO_SK;
-    import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_CURRENT_HDEMO_SK;
-    import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_CUSTOMER_ID;
-    import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_CUSTOMER_SK;
-    import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_EMAIL_ADDRESS;
-    import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_FIRST_NAME;
-    import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_FIRST_SALES_DATE_ID;
-    import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_FIRST_SHIPTO_DATE_ID;
-    import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_LAST_NAME;
-    import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_LAST_REVIEW_DATE;
-    import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_PREFERRED_CUST_FLAG;
-    import static io.trino.tpcds.generator.CustomerGeneratorColumn.C_SALUTATION;
-
-public class CustomerRow
-    extends KyuubiTPCDSTableRowWithNulls
-{
+public class CustomerRow extends KyuubiTPCDSTableRowWithNulls {
   private final long cCustomerSk;
   private final String cCustomerId;
   private final long cCurrentCdemoSk;
@@ -45,7 +40,8 @@ public class CustomerRow
   private final String cEmailAddress;
   private final int cLastReviewDate;
 
-  public CustomerRow(long cCustomerSk,
+  public CustomerRow(
+      long cCustomerSk,
       String cCustomerId,
       long cCurrentCdemoSk,
       long cCurrentHdemoSk,
@@ -62,8 +58,7 @@ public class CustomerRow
       String cBirthCountry,
       String cEmailAddress,
       int cLastReviewDate,
-      long nullBitMap)
-  {
+      long nullBitMap) {
     super(nullBitMap, C_CUSTOMER_SK);
     this.cCustomerSk = cCustomerSk;
     this.cCustomerId = cCustomerId;
@@ -80,7 +75,7 @@ public class CustomerRow
     this.cBirthMonth = cBirthMonth;
     this.cBirthYear = cBirthYear;
     this.cBirthCountry = cBirthCountry;
-    this.cLogin = null;  // never gets set to anything
+    this.cLogin = null; // never gets set to anything
     this.cEmailAddress = cEmailAddress;
     this.cLastReviewDate = cLastReviewDate;
   }
@@ -157,26 +152,27 @@ public class CustomerRow
     return cLastReviewDate;
   }
 
-  @Override public Object[] values() {
+  @Override
+  public Object[] values() {
     return new Object[] {
-        getOrNullForKey(cCustomerSk, C_CUSTOMER_SK),
-        getOrNull(cCustomerId, C_CUSTOMER_ID),
-        getOrNullForKey(cCurrentCdemoSk, C_CURRENT_CDEMO_SK),
-        getOrNullForKey(cCurrentHdemoSk, C_CURRENT_HDEMO_SK),
-        getOrNullForKey(cCurrentAddrSk, C_CURRENT_ADDR_SK),
-        getOrNull(cFirstShiptoDateId, C_FIRST_SHIPTO_DATE_ID),
-        getOrNull(cFirstSalesDateId, C_FIRST_SALES_DATE_ID),
-        getOrNull(cSalutation, C_SALUTATION),
-        getOrNull(cFirstName, C_FIRST_NAME),
-        getOrNull(cLastName, C_LAST_NAME),
-        getOrNullForBoolean(cPreferredCustFlag, C_PREFERRED_CUST_FLAG),
-        getOrNull(cBirthDay, C_BIRTH_DAY),
-        getOrNull(cBirthMonth, C_BIRTH_MONTH),
-        getOrNull(cBirthYear, C_BIRTH_YEAR),
-        getOrNull(cBirthCountry, C_BIRTH_COUNTRY),
-        cLogin,
-        getOrNull(cEmailAddress, C_EMAIL_ADDRESS),
-        getOrNull(cLastReviewDate, C_LAST_REVIEW_DATE)
+      getOrNullForKey(cCustomerSk, C_CUSTOMER_SK),
+      getOrNull(cCustomerId, C_CUSTOMER_ID),
+      getOrNullForKey(cCurrentCdemoSk, C_CURRENT_CDEMO_SK),
+      getOrNullForKey(cCurrentHdemoSk, C_CURRENT_HDEMO_SK),
+      getOrNullForKey(cCurrentAddrSk, C_CURRENT_ADDR_SK),
+      getOrNull(cFirstShiptoDateId, C_FIRST_SHIPTO_DATE_ID),
+      getOrNull(cFirstSalesDateId, C_FIRST_SALES_DATE_ID),
+      getOrNull(cSalutation, C_SALUTATION),
+      getOrNull(cFirstName, C_FIRST_NAME),
+      getOrNull(cLastName, C_LAST_NAME),
+      getOrNullForBoolean(cPreferredCustFlag, C_PREFERRED_CUST_FLAG),
+      getOrNull(cBirthDay, C_BIRTH_DAY),
+      getOrNull(cBirthMonth, C_BIRTH_MONTH),
+      getOrNull(cBirthYear, C_BIRTH_YEAR),
+      getOrNull(cBirthCountry, C_BIRTH_COUNTRY),
+      cLogin,
+      getOrNull(cEmailAddress, C_EMAIL_ADDRESS),
+      getOrNull(cLastReviewDate, C_LAST_REVIEW_DATE)
     };
   }
 }

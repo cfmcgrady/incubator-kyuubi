@@ -1,49 +1,44 @@
 package io.trino.tpcds.row;
 
-    import io.trino.tpcds.type.Pricing;
-    import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_BILL_ADDR_SK;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_BILL_CDEMO_SK;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_BILL_CUSTOMER_SK;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_BILL_HDEMO_SK;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_ITEM_SK;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_ORDER_NUMBER;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_COUPON_AMT;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_EXT_DISCOUNT_AMT;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_EXT_LIST_PRICE;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_EXT_SALES_PRICE;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_EXT_SHIP_COST;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_EXT_TAX;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_EXT_WHOLESALE_COST;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_LIST_PRICE;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_NET_PAID;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_NET_PAID_INC_SHIP;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_NET_PAID_INC_SHIP_TAX;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_NET_PAID_INC_TAX;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_NET_PROFIT;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_QUANTITY;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_SALES_PRICE;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_WHOLESALE_COST;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PROMO_SK;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_SHIP_ADDR_SK;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_SHIP_CDEMO_SK;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_SHIP_CUSTOMER_SK;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_SHIP_DATE_SK;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_SHIP_HDEMO_SK;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_SHIP_MODE_SK;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_SOLD_DATE_SK;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_SOLD_TIME_SK;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_WAREHOUSE_SK;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_WEB_PAGE_SK;
+import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_WEB_SITE_SK;
 
-    import java.util.List;
+import io.trino.tpcds.type.Pricing;
+import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
 
-    import static com.google.common.collect.Lists.newArrayList;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_BILL_ADDR_SK;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_BILL_CDEMO_SK;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_BILL_CUSTOMER_SK;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_BILL_HDEMO_SK;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_ITEM_SK;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_ORDER_NUMBER;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_COUPON_AMT;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_EXT_DISCOUNT_AMT;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_EXT_LIST_PRICE;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_EXT_SALES_PRICE;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_EXT_SHIP_COST;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_EXT_TAX;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_EXT_WHOLESALE_COST;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_LIST_PRICE;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_NET_PAID;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_NET_PAID_INC_SHIP;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_NET_PAID_INC_SHIP_TAX;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_NET_PAID_INC_TAX;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_NET_PROFIT;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_QUANTITY;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_SALES_PRICE;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PRICING_WHOLESALE_COST;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_PROMO_SK;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_SHIP_ADDR_SK;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_SHIP_CDEMO_SK;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_SHIP_CUSTOMER_SK;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_SHIP_DATE_SK;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_SHIP_HDEMO_SK;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_SHIP_MODE_SK;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_SOLD_DATE_SK;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_SOLD_TIME_SK;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_WAREHOUSE_SK;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_WEB_PAGE_SK;
-    import static io.trino.tpcds.generator.WebSalesGeneratorColumn.WS_WEB_SITE_SK;
-
-public class WebSalesRow
-    extends KyuubiTPCDSTableRowWithNulls
-{
+public class WebSalesRow extends KyuubiTPCDSTableRowWithNulls {
   private final long wsSoldDateSk;
   private final long wsSoldTimeSk;
   private final long wsShipDateSk;
@@ -64,7 +59,8 @@ public class WebSalesRow
   private final long wsOrderNumber;
   private final Pricing wsPricing;
 
-  public WebSalesRow(long nullBitMap,
+  public WebSalesRow(
+      long nullBitMap,
       long wsSoldDateSk,
       long wsSoldTimeSk,
       long wsShipDateSk,
@@ -83,8 +79,7 @@ public class WebSalesRow
       long wsWarehouseSk,
       long wsPromoSk,
       long wsOrderNumber,
-      Pricing wsPricing)
-  {
+      Pricing wsPricing) {
     super(nullBitMap, WS_SOLD_DATE_SK);
     this.wsSoldDateSk = wsSoldDateSk;
     this.wsSoldTimeSk = wsSoldTimeSk;
@@ -107,48 +102,39 @@ public class WebSalesRow
     this.wsPricing = wsPricing;
   }
 
-  public long getWsShipCdemoSk()
-  {
+  public long getWsShipCdemoSk() {
     return wsShipCdemoSk;
   }
 
-  public long getWsShipHdemoSk()
-  {
+  public long getWsShipHdemoSk() {
     return wsShipHdemoSk;
   }
 
-  public long getWsShipAddrSk()
-  {
+  public long getWsShipAddrSk() {
     return wsShipAddrSk;
   }
 
-  public Pricing getWsPricing()
-  {
+  public Pricing getWsPricing() {
     return wsPricing;
   }
 
-  public long getWsItemSk()
-  {
+  public long getWsItemSk() {
     return wsItemSk;
   }
 
-  public long getWsOrderNumber()
-  {
+  public long getWsOrderNumber() {
     return wsOrderNumber;
   }
 
-  public long getWsWebPageSk()
-  {
+  public long getWsWebPageSk() {
     return wsWebPageSk;
   }
 
-  public long getWsShipDateSk()
-  {
+  public long getWsShipDateSk() {
     return wsShipDateSk;
   }
 
-  public long getWsShipCustomerSk()
-  {
+  public long getWsShipCustomerSk() {
     return wsShipCustomerSk;
   }
 
@@ -192,42 +178,43 @@ public class WebSalesRow
     return wsPromoSk;
   }
 
-  @Override public Object[] values() {
+  @Override
+  public Object[] values() {
     return new Object[] {
-        getOrNullForKey(wsSoldDateSk, WS_SOLD_DATE_SK),
-        getOrNullForKey(wsSoldTimeSk, WS_SOLD_TIME_SK),
-        getOrNullForKey(wsShipDateSk, WS_SHIP_DATE_SK),
-        getOrNullForKey(wsItemSk, WS_ITEM_SK),
-        getOrNullForKey(wsBillCustomerSk, WS_BILL_CUSTOMER_SK),
-        getOrNullForKey(wsBillCdemoSk, WS_BILL_CDEMO_SK),
-        getOrNullForKey(wsBillHdemoSk, WS_BILL_HDEMO_SK),
-        getOrNullForKey(wsBillAddrSk, WS_BILL_ADDR_SK),
-        getOrNullForKey(wsShipCustomerSk, WS_SHIP_CUSTOMER_SK),
-        getOrNullForKey(wsShipCdemoSk, WS_SHIP_CDEMO_SK),
-        getOrNullForKey(wsShipHdemoSk, WS_SHIP_HDEMO_SK),
-        getOrNullForKey(wsShipAddrSk, WS_SHIP_ADDR_SK),
-        getOrNullForKey(wsWebPageSk, WS_WEB_PAGE_SK),
-        getOrNullForKey(wsWebSiteSk, WS_WEB_SITE_SK),
-        getOrNullForKey(wsShipModeSk, WS_SHIP_MODE_SK),
-        getOrNullForKey(wsWarehouseSk, WS_WAREHOUSE_SK),
-        getOrNullForKey(wsPromoSk, WS_PROMO_SK),
-        getOrNullForKey(wsOrderNumber, WS_ORDER_NUMBER),
-        getOrNull(wsPricing.getQuantity(), WS_PRICING_QUANTITY),
-        getOrNull(wsPricing.getWholesaleCost(), WS_PRICING_WHOLESALE_COST),
-        getOrNull(wsPricing.getListPrice(), WS_PRICING_LIST_PRICE),
-        getOrNull(wsPricing.getSalesPrice(), WS_PRICING_SALES_PRICE),
-        getOrNull(wsPricing.getExtDiscountAmount(), WS_PRICING_EXT_DISCOUNT_AMT),
-        getOrNull(wsPricing.getExtSalesPrice(), WS_PRICING_EXT_SALES_PRICE),
-        getOrNull(wsPricing.getExtWholesaleCost(), WS_PRICING_EXT_WHOLESALE_COST),
-        getOrNull(wsPricing.getExtListPrice(), WS_PRICING_EXT_LIST_PRICE),
-        getOrNull(wsPricing.getExtTax(), WS_PRICING_EXT_TAX),
-        getOrNull(wsPricing.getCouponAmount(), WS_PRICING_COUPON_AMT),
-        getOrNull(wsPricing.getExtShipCost(), WS_PRICING_EXT_SHIP_COST),
-        getOrNull(wsPricing.getNetPaid(), WS_PRICING_NET_PAID),
-        getOrNull(wsPricing.getNetPaidIncludingTax(), WS_PRICING_NET_PAID_INC_TAX),
-        getOrNull(wsPricing.getNetPaidIncludingShipping(), WS_PRICING_NET_PAID_INC_SHIP),
-        getOrNull(wsPricing.getNetPaidIncludingShippingAndTax(), WS_PRICING_NET_PAID_INC_SHIP_TAX),
-        getOrNull(wsPricing.getNetProfit(), WS_PRICING_NET_PROFIT)
+      getOrNullForKey(wsSoldDateSk, WS_SOLD_DATE_SK),
+      getOrNullForKey(wsSoldTimeSk, WS_SOLD_TIME_SK),
+      getOrNullForKey(wsShipDateSk, WS_SHIP_DATE_SK),
+      getOrNullForKey(wsItemSk, WS_ITEM_SK),
+      getOrNullForKey(wsBillCustomerSk, WS_BILL_CUSTOMER_SK),
+      getOrNullForKey(wsBillCdemoSk, WS_BILL_CDEMO_SK),
+      getOrNullForKey(wsBillHdemoSk, WS_BILL_HDEMO_SK),
+      getOrNullForKey(wsBillAddrSk, WS_BILL_ADDR_SK),
+      getOrNullForKey(wsShipCustomerSk, WS_SHIP_CUSTOMER_SK),
+      getOrNullForKey(wsShipCdemoSk, WS_SHIP_CDEMO_SK),
+      getOrNullForKey(wsShipHdemoSk, WS_SHIP_HDEMO_SK),
+      getOrNullForKey(wsShipAddrSk, WS_SHIP_ADDR_SK),
+      getOrNullForKey(wsWebPageSk, WS_WEB_PAGE_SK),
+      getOrNullForKey(wsWebSiteSk, WS_WEB_SITE_SK),
+      getOrNullForKey(wsShipModeSk, WS_SHIP_MODE_SK),
+      getOrNullForKey(wsWarehouseSk, WS_WAREHOUSE_SK),
+      getOrNullForKey(wsPromoSk, WS_PROMO_SK),
+      getOrNullForKey(wsOrderNumber, WS_ORDER_NUMBER),
+      getOrNull(wsPricing.getQuantity(), WS_PRICING_QUANTITY),
+      getOrNull(wsPricing.getWholesaleCost(), WS_PRICING_WHOLESALE_COST),
+      getOrNull(wsPricing.getListPrice(), WS_PRICING_LIST_PRICE),
+      getOrNull(wsPricing.getSalesPrice(), WS_PRICING_SALES_PRICE),
+      getOrNull(wsPricing.getExtDiscountAmount(), WS_PRICING_EXT_DISCOUNT_AMT),
+      getOrNull(wsPricing.getExtSalesPrice(), WS_PRICING_EXT_SALES_PRICE),
+      getOrNull(wsPricing.getExtWholesaleCost(), WS_PRICING_EXT_WHOLESALE_COST),
+      getOrNull(wsPricing.getExtListPrice(), WS_PRICING_EXT_LIST_PRICE),
+      getOrNull(wsPricing.getExtTax(), WS_PRICING_EXT_TAX),
+      getOrNull(wsPricing.getCouponAmount(), WS_PRICING_COUPON_AMT),
+      getOrNull(wsPricing.getExtShipCost(), WS_PRICING_EXT_SHIP_COST),
+      getOrNull(wsPricing.getNetPaid(), WS_PRICING_NET_PAID),
+      getOrNull(wsPricing.getNetPaidIncludingTax(), WS_PRICING_NET_PAID_INC_TAX),
+      getOrNull(wsPricing.getNetPaidIncludingShipping(), WS_PRICING_NET_PAID_INC_SHIP),
+      getOrNull(wsPricing.getNetPaidIncludingShippingAndTax(), WS_PRICING_NET_PAID_INC_SHIP_TAX),
+      getOrNull(wsPricing.getNetProfit(), WS_PRICING_NET_PROFIT)
     };
   }
 }

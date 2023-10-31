@@ -1,13 +1,11 @@
 package org.apache.kyuubi.spark.connector.tpcds.row;
 
+import io.trino.tpcds.generator.GeneratorColumn;
+import io.trino.tpcds.row.TableRowWithNulls;
 import java.util.List;
-
 import scala.None$;
 import scala.Option;
 import scala.Some;
-
-import io.trino.tpcds.generator.GeneratorColumn;
-import io.trino.tpcds.row.TableRowWithNulls;
 
 public abstract class KyuubiTPCDSTableRowWithNulls extends TableRowWithNulls {
 
@@ -20,7 +18,7 @@ public abstract class KyuubiTPCDSTableRowWithNulls extends TableRowWithNulls {
   }
 
   public Option<Long> getOrNullForKey(Long value, GeneratorColumn column) {
-    return (isNull(column) || value == -1)?  (Option) None$.MODULE$ : Some.apply(value);
+    return (isNull(column) || value == -1) ? (Option) None$.MODULE$ : Some.apply(value);
   }
 
   public <T> Option<T> getOrNull(T value, GeneratorColumn column) {
@@ -33,7 +31,8 @@ public abstract class KyuubiTPCDSTableRowWithNulls extends TableRowWithNulls {
 
   public abstract Object[] values();
 
-  @Override public List<String> getValues() {
+  @Override
+  public List<String> getValues() {
     throw new UnsupportedOperationException();
   }
 }

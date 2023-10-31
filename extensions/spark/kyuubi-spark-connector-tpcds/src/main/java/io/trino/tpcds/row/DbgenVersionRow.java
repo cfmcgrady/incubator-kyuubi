@@ -17,26 +17,25 @@
 
 package io.trino.tpcds.row;
 
-import java.util.List;
-
-import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
-
-import static com.google.common.collect.Lists.newArrayList;
 import static io.trino.tpcds.generator.DbgenVersionGeneratorColumn.DV_CMDLINE_ARGS;
 import static io.trino.tpcds.generator.DbgenVersionGeneratorColumn.DV_CREATE_DATE;
 import static io.trino.tpcds.generator.DbgenVersionGeneratorColumn.DV_CREATE_TIME;
 import static io.trino.tpcds.generator.DbgenVersionGeneratorColumn.DV_VERSION;
 
-public class DbgenVersionRow
-    extends KyuubiTPCDSTableRowWithNulls
-{
+import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
+
+public class DbgenVersionRow extends KyuubiTPCDSTableRowWithNulls {
   private final String dvVersion;
   private final String dvCreateDate;
   private final String dvCreateTime;
   private final String dvCmdlineArgs;
 
-  public DbgenVersionRow(long nullBitMap, String dvVersion, String dvCreateDate, String dvCreateTime, String dvCmdlineArgs)
-  {
+  public DbgenVersionRow(
+      long nullBitMap,
+      String dvVersion,
+      String dvCreateDate,
+      String dvCreateTime,
+      String dvCmdlineArgs) {
     super(nullBitMap, DV_VERSION);
     this.dvVersion = dvVersion;
     this.dvCreateDate = dvCreateDate;
@@ -60,12 +59,13 @@ public class DbgenVersionRow
     return dvCmdlineArgs;
   }
 
-  @Override public Object[] values() {
+  @Override
+  public Object[] values() {
     return new Object[] {
-        getOrNull(dvVersion, DV_VERSION),
-        getOrNull(dvCreateDate, DV_CREATE_DATE),
-        getOrNull(dvCreateTime, DV_CREATE_TIME),
-        getOrNull(dvCmdlineArgs, DV_CMDLINE_ARGS)
+      getOrNull(dvVersion, DV_VERSION),
+      getOrNull(dvCreateDate, DV_CREATE_DATE),
+      getOrNull(dvCreateTime, DV_CREATE_TIME),
+      getOrNull(dvCmdlineArgs, DV_CMDLINE_ARGS)
     };
   }
 }

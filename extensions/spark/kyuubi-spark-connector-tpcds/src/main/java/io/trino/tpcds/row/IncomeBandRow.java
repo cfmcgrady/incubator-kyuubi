@@ -16,17 +16,13 @@
  */
 package io.trino.tpcds.row;
 
-import java.util.List;
-
-import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
-
-import static com.google.common.collect.Lists.newArrayList;
 import static io.trino.tpcds.generator.IncomeBandGeneratorColumn.IB_INCOME_BAND_ID;
 import static io.trino.tpcds.generator.IncomeBandGeneratorColumn.IB_LOWER_BOUND;
 import static io.trino.tpcds.generator.IncomeBandGeneratorColumn.IB_UPPER_BOUND;
 
-public class IncomeBandRow
-    extends KyuubiTPCDSTableRowWithNulls {
+import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
+
+public class IncomeBandRow extends KyuubiTPCDSTableRowWithNulls {
   private final int ibIncomeBandId;
   private final int ibLowerBound;
   private final int ibUpperBound;
@@ -50,11 +46,12 @@ public class IncomeBandRow
     return ibUpperBound;
   }
 
-  @Override public Object[] values() {
+  @Override
+  public Object[] values() {
     return new Object[] {
-        getOrNull(ibIncomeBandId, IB_INCOME_BAND_ID),
-        getOrNull(ibLowerBound, IB_LOWER_BOUND),
-        getOrNull(ibUpperBound, IB_UPPER_BOUND)
+      getOrNull(ibIncomeBandId, IB_INCOME_BAND_ID),
+      getOrNull(ibLowerBound, IB_LOWER_BOUND),
+      getOrNull(ibUpperBound, IB_UPPER_BOUND)
     };
   }
 }

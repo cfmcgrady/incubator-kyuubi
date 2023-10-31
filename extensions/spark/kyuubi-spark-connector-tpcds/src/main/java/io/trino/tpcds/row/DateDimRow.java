@@ -1,42 +1,37 @@
 package io.trino.tpcds.row;
 
-    import java.util.List;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_CURRENT_DAY;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_CURRENT_MONTH;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_CURRENT_QUARTER;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_CURRENT_WEEK;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_CURRENT_YEAR;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_DATE_ID;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_DATE_SK;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_DAY_NAME;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_DOM;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_DOW;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_FIRST_DOM;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_FOLLOWING_HOLIDAY;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_FY_QUARTER_SEQ;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_FY_WEEK_SEQ;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_FY_YEAR;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_HOLIDAY;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_LAST_DOM;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_MONTH_SEQ;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_MOY;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_QOY;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_QUARTER_NAME;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_QUARTER_SEQ;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_SAME_DAY_LQ;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_SAME_DAY_LY;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_WEEKEND;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_WEEK_SEQ;
+import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_YEAR;
+import static java.lang.String.format;
 
-    import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
+import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
 
-    import static com.google.common.collect.Lists.newArrayList;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_CURRENT_DAY;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_CURRENT_MONTH;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_CURRENT_QUARTER;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_CURRENT_WEEK;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_CURRENT_YEAR;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_DATE_ID;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_DATE_SK;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_DAY_NAME;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_DOM;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_DOW;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_FIRST_DOM;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_FOLLOWING_HOLIDAY;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_FY_QUARTER_SEQ;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_FY_WEEK_SEQ;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_FY_YEAR;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_HOLIDAY;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_LAST_DOM;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_MONTH_SEQ;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_MOY;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_QOY;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_QUARTER_NAME;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_QUARTER_SEQ;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_SAME_DAY_LQ;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_SAME_DAY_LY;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_WEEKEND;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_WEEK_SEQ;
-    import static io.trino.tpcds.generator.DateDimGeneratorColumn.D_YEAR;
-    import static java.lang.String.format;
-
-public class DateDimRow
-    extends KyuubiTPCDSTableRowWithNulls
-{
+public class DateDimRow extends KyuubiTPCDSTableRowWithNulls {
   private final long dDateSk;
   private final String dDateId;
   private final int dMonthSeq;
@@ -64,7 +59,8 @@ public class DateDimRow
   private final boolean dCurrentQuarter;
   private final boolean dCurrentYear;
 
-  public DateDimRow(long nullBitMap,
+  public DateDimRow(
+      long nullBitMap,
       long dDateSk,
       String dDateId,
       int dMonthSeq,
@@ -90,8 +86,7 @@ public class DateDimRow
       boolean dCurrentWeek,
       boolean dCurrentMonth,
       boolean dCurrentQuarter,
-      boolean dCurrentYear)
-  {
+      boolean dCurrentYear) {
     super(nullBitMap, D_DATE_SK);
     this.dDateSk = dDateSk;
     this.dDateId = dDateId;
@@ -225,36 +220,37 @@ public class DateDimRow
     return dCurrentYear;
   }
 
-  @Override public Object[] values() {
+  @Override
+  public Object[] values() {
     return new Object[] {
-        getOrNullForKey(dDateSk, D_DATE_SK),
-        getOrNull(dDateId, D_DATE_ID),
-        getDateOrNullFromJulianDays(dDateSk, D_DATE_SK),
-        getOrNull(dMonthSeq, D_MONTH_SEQ),
-        getOrNull(dWeekSeq, D_WEEK_SEQ),
-        getOrNull(dQuarterSeq, D_QUARTER_SEQ),
-        getOrNull(dYear, D_YEAR),
-        getOrNull(dDow, D_DOW),
-        getOrNull(dMoy, D_MOY),
-        getOrNull(dDom, D_DOM),
-        getOrNull(dQoy, D_QOY),
-        getOrNull(dFyYear, D_FY_YEAR),
-        getOrNull(dFyQuarterSeq, D_FY_QUARTER_SEQ),
-        getOrNull(dFyWeekSeq, D_FY_WEEK_SEQ),
-        getOrNull(dDayName, D_DAY_NAME),
-        getOrNull(format("%4dQ%d", dYear, dQoy), D_QUARTER_NAME),
-        getOrNullForBoolean(dHoliday, D_HOLIDAY),
-        getOrNullForBoolean(dWeekend, D_WEEKEND),
-        getOrNullForBoolean(dFollowingHoliday, D_FOLLOWING_HOLIDAY),
-        getOrNull(dFirstDom, D_FIRST_DOM),
-        getOrNull(dLastDom, D_LAST_DOM),
-        getOrNull(dSameDayLy, D_SAME_DAY_LY),
-        getOrNull(dSameDayLq, D_SAME_DAY_LQ),
-        getOrNullForBoolean(dCurrentDay, D_CURRENT_DAY),
-        getOrNullForBoolean(dCurrentWeek, D_CURRENT_WEEK),
-        getOrNullForBoolean(dCurrentMonth, D_CURRENT_MONTH),
-        getOrNullForBoolean(dCurrentQuarter, D_CURRENT_QUARTER),
-        getOrNullForBoolean(dCurrentYear, D_CURRENT_YEAR)
+      getOrNullForKey(dDateSk, D_DATE_SK),
+      getOrNull(dDateId, D_DATE_ID),
+      getDateOrNullFromJulianDays(dDateSk, D_DATE_SK),
+      getOrNull(dMonthSeq, D_MONTH_SEQ),
+      getOrNull(dWeekSeq, D_WEEK_SEQ),
+      getOrNull(dQuarterSeq, D_QUARTER_SEQ),
+      getOrNull(dYear, D_YEAR),
+      getOrNull(dDow, D_DOW),
+      getOrNull(dMoy, D_MOY),
+      getOrNull(dDom, D_DOM),
+      getOrNull(dQoy, D_QOY),
+      getOrNull(dFyYear, D_FY_YEAR),
+      getOrNull(dFyQuarterSeq, D_FY_QUARTER_SEQ),
+      getOrNull(dFyWeekSeq, D_FY_WEEK_SEQ),
+      getOrNull(dDayName, D_DAY_NAME),
+      getOrNull(format("%4dQ%d", dYear, dQoy), D_QUARTER_NAME),
+      getOrNullForBoolean(dHoliday, D_HOLIDAY),
+      getOrNullForBoolean(dWeekend, D_WEEKEND),
+      getOrNullForBoolean(dFollowingHoliday, D_FOLLOWING_HOLIDAY),
+      getOrNull(dFirstDom, D_FIRST_DOM),
+      getOrNull(dLastDom, D_LAST_DOM),
+      getOrNull(dSameDayLy, D_SAME_DAY_LY),
+      getOrNull(dSameDayLq, D_SAME_DAY_LQ),
+      getOrNullForBoolean(dCurrentDay, D_CURRENT_DAY),
+      getOrNullForBoolean(dCurrentWeek, D_CURRENT_WEEK),
+      getOrNullForBoolean(dCurrentMonth, D_CURRENT_MONTH),
+      getOrNullForBoolean(dCurrentQuarter, D_CURRENT_QUARTER),
+      getOrNullForBoolean(dCurrentYear, D_CURRENT_YEAR)
     };
   }
 }

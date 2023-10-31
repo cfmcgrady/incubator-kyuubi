@@ -1,39 +1,34 @@
 package io.trino.tpcds.row;
 
-    import io.trino.tpcds.type.Pricing;
-    import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_ITEM_SK;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_ORDER_NUMBER;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_EXT_SHIP_COST;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_EXT_TAX;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_FEE;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_NET_LOSS;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_NET_PAID;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_NET_PAID_INC_TAX;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_QUANTITY;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_REFUNDED_CASH;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_REVERSED_CHARGE;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_STORE_CREDIT;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_REASON_SK;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_REFUNDED_ADDR_SK;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_REFUNDED_CDEMO_SK;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_REFUNDED_CUSTOMER_SK;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_REFUNDED_HDEMO_SK;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_RETURNED_DATE_SK;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_RETURNED_TIME_SK;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_RETURNING_ADDR_SK;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_RETURNING_CDEMO_SK;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_RETURNING_CUSTOMER_SK;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_RETURNING_HDEMO_SK;
+import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_WEB_PAGE_SK;
 
-    import java.util.List;
+import io.trino.tpcds.type.Pricing;
+import org.apache.kyuubi.spark.connector.tpcds.row.KyuubiTPCDSTableRowWithNulls;
 
-    import static com.google.common.collect.Lists.newArrayList;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_ITEM_SK;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_ORDER_NUMBER;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_EXT_SHIP_COST;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_EXT_TAX;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_FEE;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_NET_LOSS;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_NET_PAID;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_NET_PAID_INC_TAX;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_QUANTITY;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_REFUNDED_CASH;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_REVERSED_CHARGE;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_PRICING_STORE_CREDIT;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_REASON_SK;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_REFUNDED_ADDR_SK;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_REFUNDED_CDEMO_SK;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_REFUNDED_CUSTOMER_SK;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_REFUNDED_HDEMO_SK;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_RETURNED_DATE_SK;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_RETURNED_TIME_SK;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_RETURNING_ADDR_SK;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_RETURNING_CDEMO_SK;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_RETURNING_CUSTOMER_SK;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_RETURNING_HDEMO_SK;
-    import static io.trino.tpcds.generator.WebReturnsGeneratorColumn.WR_WEB_PAGE_SK;
-
-public class WebReturnsRow
-    extends KyuubiTPCDSTableRowWithNulls
-{
+public class WebReturnsRow extends KyuubiTPCDSTableRowWithNulls {
   private final long wrReturnedDateSk;
   private final long wrReturnedTimeSk;
   private final long wrItemSk;
@@ -50,7 +45,8 @@ public class WebReturnsRow
   private final long wrOrderNumber;
   private final Pricing wrPricing;
 
-  public WebReturnsRow(long nullBitMap,
+  public WebReturnsRow(
+      long nullBitMap,
       long wrReturnedDateSk,
       long wrReturnedTimeSk,
       long wrItemSk,
@@ -65,8 +61,7 @@ public class WebReturnsRow
       long wrWebPageSk,
       long wrReasonSk,
       long wrOrderNumber,
-      Pricing wrPricing)
-  {
+      Pricing wrPricing) {
     super(nullBitMap, WR_RETURNED_DATE_SK);
     this.wrReturnedDateSk = wrReturnedDateSk;
     this.wrReturnedTimeSk = wrReturnedTimeSk;
@@ -145,32 +140,33 @@ public class WebReturnsRow
     return wrPricing;
   }
 
-  @Override public Object[] values() {
+  @Override
+  public Object[] values() {
     return new Object[] {
-        getOrNullForKey(wrReturnedDateSk, WR_RETURNED_DATE_SK),
-        getOrNullForKey(wrReturnedTimeSk, WR_RETURNED_TIME_SK),
-        getOrNullForKey(wrItemSk, WR_ITEM_SK),
-        getOrNullForKey(wrRefundedCustomerSk, WR_REFUNDED_CUSTOMER_SK),
-        getOrNullForKey(wrRefundedCdemoSk, WR_REFUNDED_CDEMO_SK),
-        getOrNullForKey(wrRefundedHdemoSk, WR_REFUNDED_HDEMO_SK),
-        getOrNullForKey(wrRefundedAddrSk, WR_REFUNDED_ADDR_SK),
-        getOrNullForKey(wrReturningCustomerSk, WR_RETURNING_CUSTOMER_SK),
-        getOrNullForKey(wrReturningCdemoSk, WR_RETURNING_CDEMO_SK),
-        getOrNullForKey(wrReturningHdemoSk, WR_RETURNING_HDEMO_SK),
-        getOrNullForKey(wrReturningAddrSk, WR_RETURNING_ADDR_SK),
-        getOrNullForKey(wrWebPageSk, WR_WEB_PAGE_SK),
-        getOrNullForKey(wrReasonSk, WR_REASON_SK),
-        getOrNullForKey(wrOrderNumber, WR_ORDER_NUMBER),
-        getOrNull(wrPricing.getQuantity(), WR_PRICING_QUANTITY),
-        getOrNull(wrPricing.getNetPaid(), WR_PRICING_NET_PAID),
-        getOrNull(wrPricing.getExtTax(), WR_PRICING_EXT_TAX),
-        getOrNull(wrPricing.getNetPaidIncludingTax(), WR_PRICING_NET_PAID_INC_TAX),
-        getOrNull(wrPricing.getFee(), WR_PRICING_FEE),
-        getOrNull(wrPricing.getExtShipCost(), WR_PRICING_EXT_SHIP_COST),
-        getOrNull(wrPricing.getRefundedCash(), WR_PRICING_REFUNDED_CASH),
-        getOrNull(wrPricing.getReversedCharge(), WR_PRICING_REVERSED_CHARGE),
-        getOrNull(wrPricing.getStoreCredit(), WR_PRICING_STORE_CREDIT),
-        getOrNull(wrPricing.getNetLoss(), WR_PRICING_NET_LOSS)
+      getOrNullForKey(wrReturnedDateSk, WR_RETURNED_DATE_SK),
+      getOrNullForKey(wrReturnedTimeSk, WR_RETURNED_TIME_SK),
+      getOrNullForKey(wrItemSk, WR_ITEM_SK),
+      getOrNullForKey(wrRefundedCustomerSk, WR_REFUNDED_CUSTOMER_SK),
+      getOrNullForKey(wrRefundedCdemoSk, WR_REFUNDED_CDEMO_SK),
+      getOrNullForKey(wrRefundedHdemoSk, WR_REFUNDED_HDEMO_SK),
+      getOrNullForKey(wrRefundedAddrSk, WR_REFUNDED_ADDR_SK),
+      getOrNullForKey(wrReturningCustomerSk, WR_RETURNING_CUSTOMER_SK),
+      getOrNullForKey(wrReturningCdemoSk, WR_RETURNING_CDEMO_SK),
+      getOrNullForKey(wrReturningHdemoSk, WR_RETURNING_HDEMO_SK),
+      getOrNullForKey(wrReturningAddrSk, WR_RETURNING_ADDR_SK),
+      getOrNullForKey(wrWebPageSk, WR_WEB_PAGE_SK),
+      getOrNullForKey(wrReasonSk, WR_REASON_SK),
+      getOrNullForKey(wrOrderNumber, WR_ORDER_NUMBER),
+      getOrNull(wrPricing.getQuantity(), WR_PRICING_QUANTITY),
+      getOrNull(wrPricing.getNetPaid(), WR_PRICING_NET_PAID),
+      getOrNull(wrPricing.getExtTax(), WR_PRICING_EXT_TAX),
+      getOrNull(wrPricing.getNetPaidIncludingTax(), WR_PRICING_NET_PAID_INC_TAX),
+      getOrNull(wrPricing.getFee(), WR_PRICING_FEE),
+      getOrNull(wrPricing.getExtShipCost(), WR_PRICING_EXT_SHIP_COST),
+      getOrNull(wrPricing.getRefundedCash(), WR_PRICING_REFUNDED_CASH),
+      getOrNull(wrPricing.getReversedCharge(), WR_PRICING_REVERSED_CHARGE),
+      getOrNull(wrPricing.getStoreCredit(), WR_PRICING_STORE_CREDIT),
+      getOrNull(wrPricing.getNetLoss(), WR_PRICING_NET_LOSS)
     };
   }
 }

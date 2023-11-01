@@ -79,7 +79,7 @@ class PromotionRow(
         getLongOrNull(pStartDateId, P_START_DATE_ID),
         getLongOrNull(pEndDateId, P_END_DATE_ID),
         getLongOrNull(pItemSk, P_ITEM_SK),
-        getDecimalOrNull(pCost, P_COST, 5, 2),
+        getDecimalOrNull(pCost, P_COST, 15, 2),
         getIntOrNull(pResponseTarget, P_RESPONSE_TARGET),
         getStringOrNullInternal(pPromoName, P_PROMO_NAME),
         getStringOrNullInternal(pChannelDmail, P_CHANNEL_DMAIL),

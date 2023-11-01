@@ -63,7 +63,7 @@ class StoreRow(
   def getHours: String = hours
   def getStoreManager: String = storeManager
   def getMarketId: Int = marketId
-  def getDTaxPercentage: Decimal = dTaxPercentage
+  def getdTaxPercentage: Decimal = dTaxPercentage
   def getGeographyClass: String = geographyClass
   def getMarketDesc: String = marketDesc
   def getMarketManager: String = marketManager
@@ -92,9 +92,9 @@ class StoreRow(
         getStringOrNullInternal(geographyClass, W_STORE_GEOGRAPHY_CLASS),
         getStringOrNullInternal(marketDesc, W_STORE_MARKET_DESC),
         getStringOrNullInternal(marketManager, W_STORE_MARKET_MANAGER),
-        getIntOrNull(divisionId, W_STORE_DIVISION_ID),
+        getIntOrNullForKey(divisionId, W_STORE_DIVISION_ID),
         getStringOrNullInternal(divisionName, W_STORE_DIVISION_NAME),
-        getIntOrNull(companyId, W_STORE_COMPANY_ID),
+        getIntOrNullForKey(companyId, W_STORE_COMPANY_ID),
         getStringOrNullInternal(companyName, W_STORE_COMPANY_NAME),
         getStringOrNullInternal(address.getStreetNumber.toString, W_STORE_ADDRESS_STREET_NUM),
         getStringOrNullInternal(address.getStreetName, W_STORE_ADDRESS_STREET_NAME1),

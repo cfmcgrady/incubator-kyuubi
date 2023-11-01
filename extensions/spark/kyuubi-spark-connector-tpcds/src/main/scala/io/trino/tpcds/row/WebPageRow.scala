@@ -45,7 +45,7 @@ class WebPageRow(
 
   def getWpCreationDateSk: Long = wpCreationDateSk
   def getWpAccessDateSk: Long = wpAccessDateSk
-  def isWpAutogenFlag: Boolean = wpAutogenFlag
+  def getWpAutogenFlag: Boolean = wpAutogenFlag
   def getWpCustomerSk: Long = wpCustomerSk
   def getWpCharCount: Int = wpCharCount
   def getWpLinkCount: Int = wpLinkCount

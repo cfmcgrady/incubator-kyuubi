@@ -177,10 +177,20 @@ class TPCDSCatalogSuite extends KyuubiFunSuite {
 //        case _ =>
 //      }
 
-      spark.sql("select hd_vehicle_count from tpcds.tiny.household_demographics where hd_vehicle_count is null").show
+      spark.sql("select cc_closed_date_sk, cc_gmt_offset from tpcds.tiny.call_center").show
+
+//      spark.sql(
+//        """
+//          |select * from tpcds.tiny.household_demographics
+//          | where hd_demo_sk = 6000
+//          | and hd_income_band_sk = 1
+//          | and hd_buy_potential = '0-500'
+//          | and hd_dep_count = 0
+//          |""".stripMargin
+//      ).show
 //      spark.table("tpcds.tiny.household_demographics").show
-//      val schema = spark.table("tpcds.tiny.household_demographics").schema.map(_.name)
-//      checksum(spark, "tpcds.tiny.household_demographics", schema).foreach(println)
+//      val schema = spark.table("tpcds.tiny.call_center").schema.map(_.name)
+//      checksum(spark, "tpcds.tiny.call_center", schema).foreach(println)
     }
   }
 
@@ -226,6 +236,8 @@ class TPCDSCatalogSuite extends KyuubiFunSuite {
     }
   }
 
+  import org.apache.spark.sql.SparkSession
+  import org.apache.spark.sql.types.DataTypes
   def countAndChecksum(spark: SparkSession, tableName: String): (String, String) = {
     val df = spark.table(tableName)
     val cols = df.schema.map { field =>

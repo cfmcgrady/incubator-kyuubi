@@ -19,9 +19,7 @@ package io.trino.tpcds.row
 
 import java.util.{List => JList}
 
-import io.trino.tpcds.`type`.{Decimal => TPCDSDecimal}
 import io.trino.tpcds.`type`.Pricing
-import io.trino.tpcds.Options
 import io.trino.tpcds.generator.CatalogSalesGeneratorColumn.CS_BILL_ADDR_SK
 import io.trino.tpcds.generator.CatalogSalesGeneratorColumn.CS_BILL_CDEMO_SK
 import io.trino.tpcds.generator.CatalogSalesGeneratorColumn.CS_BILL_CUSTOMER_SK
@@ -56,12 +54,8 @@ import io.trino.tpcds.generator.CatalogSalesGeneratorColumn.CS_SOLD_DATE_SK
 import io.trino.tpcds.generator.CatalogSalesGeneratorColumn.CS_SOLD_ITEM_SK
 import io.trino.tpcds.generator.CatalogSalesGeneratorColumn.CS_SOLD_TIME_SK
 import io.trino.tpcds.generator.CatalogSalesGeneratorColumn.CS_WAREHOUSE_SK
-import io.trino.tpcds.generator.GeneratorColumn
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
-import org.apache.spark.sql.catalyst.util.{DateTimeUtils, RebaseDateTime}
-import org.apache.spark.sql.types.Decimal
-import org.apache.spark.unsafe.types.UTF8String
 
 class CatalogSalesRow(
     private val csSoldDateSk: Long,
@@ -171,80 +165,4 @@ class CatalogSalesRow(
           2),
         getDecimalOrNull(csPricing.getNetProfit, CS_PRICING_NET_PROFIT, 7, 2)))
   }
-}
-
-trait KyuubiTableRowWithNulls { self: TableRowWithNulls =>
-
-  def isNullInternal(column: GeneratorColumn): Boolean = {
-    val kBitMask = 1L << (column.getGlobalColumnNumber - firstColumnInternal.getGlobalColumnNumber)
-    (nullBitMapInternal & kBitMask) != 0
-  }
-
-  def getLongOrNull(value: Long, column: GeneratorColumn): Any = {
-    if (isNullInternal(column) || (value == -1L)) null else value
-  }
-
-  def getLongOrNull(value: Int, column: GeneratorColumn): Any = {
-    if (isNullInternal(column) || (value == -1)) null else value.toLong
-  }
-
-  def getDecimalOrNull(
-      value: TPCDSDecimal,
-      column: GeneratorColumn,
-      precision: Int,
-      scale: Int): Decimal = {
-    if (isNullInternal(column)) null else Decimal(value.getNumber, precision, scale)
-  }
-
-  def getDecimalOrNull(
-      value: Int,
-      column: GeneratorColumn,
-      precision: Int,
-      scale: Int): Decimal = {
-    if (isNullInternal(column)) null
-    else {
-      val decimal = Decimal(value)
-      decimal.changePrecision(precision, scale)
-      decimal
-    }
-  }
-
-  def getIntOrNull(value: Long, column: GeneratorColumn): Any = {
-    if (isNullInternal(column) || (value == -1L)) null else value.toInt
-  }
-
-  def getIntOrNull(value: Int, column: GeneratorColumn): Any = {
-    if (isNullInternal(column) || (value == -1)) null else value
-  }
-
-  def getStringOrNullInternal(value: String, column: GeneratorColumn): UTF8String = {
-    if (isNullInternal(column) || value == null || value == Options.DEFAULT_NULL_STRING) {
-      null
-    } else UTF8String.fromString(value)
-  }
-
-  def getStringOrNullInternal(value: Boolean, column: GeneratorColumn): UTF8String = {
-    if (isNullInternal(column)) {
-      null
-    } else {
-      if (value) KyuubiTableRowWithNulls.TRUE_STRING else KyuubiTableRowWithNulls.FALSE_STRING
-    }
-  }
-
-  def getDateOrNullFromJulianDays(value: Long, column: GeneratorColumn): Any = {
-    if (isNullInternal(column) || value < 0) {
-      null
-    } else {
-      RebaseDateTime.rebaseJulianToGregorianDays(value.toInt) - DateTimeUtils.JULIAN_DAY_OF_EPOCH
-    }
-  }
-
-  def nullBitMapInternal: Long
-  def firstColumnInternal: GeneratorColumn
-  def internalRow: InternalRow
-}
-
-object KyuubiTableRowWithNulls {
-  private val TRUE_STRING = UTF8String.fromString("Y")
-  private val FALSE_STRING = UTF8String.fromString("N")
 }

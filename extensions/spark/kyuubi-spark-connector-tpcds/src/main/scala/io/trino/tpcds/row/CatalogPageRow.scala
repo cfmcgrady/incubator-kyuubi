@@ -56,8 +56,8 @@ class CatalogPageRow(
       Array(
         getLongOrNull(cpCatalogPageSk, CP_CATALOG_PAGE_SK),
         getStringOrNullInternal(cpCatalogPageId, CP_CATALOG_PAGE_ID),
-        getIntOrNull(cpStartDateId, CP_START_DATE_ID),
-        getIntOrNull(cpEndDateId, CP_END_DATE_ID),
+        getIntOrNullForKey(cpStartDateId, CP_START_DATE_ID),
+        getIntOrNullForKey(cpEndDateId, CP_END_DATE_ID),
         getStringOrNullInternal(cpDepartment, CP_DEPARTMENT),
         getIntOrNull(cpCatalogNumber, CP_CATALOG_NUMBER),
         getIntOrNull(cpCatalogPageNumber, CP_CATALOG_PAGE_NUMBER),

@@ -18,41 +18,41 @@
 package io.trino.tpcds.row
 
 import java.util.{List => JList}
-import io.trino.tpcds.generator.ItemGeneratorColumn._
+
 import io.trino.tpcds.`type`.Decimal
-import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
+import io.trino.tpcds.generator.ItemGeneratorColumn._
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
 class ItemRow(
-               nullBitMap: Long,
-               private val iItemSk: Long,
-               private val iItemId: String,
-               private val iRecStartDateId: Long,
-               private val iRecEndDateId: Long,
-               private val iItemDesc: String,
-               private val iCurrentPrice: Decimal,
-               private val iWholesaleCost: Decimal,
-               private val iBrandId: Long,
-               private val iBrand: String,
-               private val iClassId: Long,
-               private val iClass: String,
-               private val iCategoryId: Long,
-               private val iCategory: String,
-               private val iManufactId: Long,
-               private val iManufact: String,
-               private val iSize: String,
-               private val iFormulation: String,
-               private val iColor: String,
-               private val iUnits: String,
-               private val iContainer: String,
-               private val iManagerId: Long,
-               private val iProductName: String,
-               private val iPromoSk: Long
-  ) extends TableRowWithNulls(nullBitMap, I_ITEM_SK)
+    nullBitMap: Long,
+    private val iItemSk: Long,
+    private val iItemId: String,
+    private val iRecStartDateId: Long,
+    private val iRecEndDateId: Long,
+    private val iItemDesc: String,
+    private val iCurrentPrice: Decimal,
+    private val iWholesaleCost: Decimal,
+    private val iBrandId: Long,
+    private val iBrand: String,
+    private val iClassId: Long,
+    private val iClass: String,
+    private val iCategoryId: Long,
+    private val iCategory: String,
+    private val iManufactId: Long,
+    private val iManufact: String,
+    private val iSize: String,
+    private val iFormulation: String,
+    private val iColor: String,
+    private val iUnits: String,
+    private val iContainer: String,
+    private val iManagerId: Long,
+    private val iProductName: String,
+    private val iPromoSk: Long) extends TableRowWithNulls(nullBitMap, I_ITEM_SK)
   with KyuubiTableRowWithNulls {
 
-    override val nullBitMapInternal = nullBitMap
-    override val firstColumnInternal = I_ITEM_SK
+  override val nullBitMapInternal = nullBitMap
+  override val firstColumnInternal = I_ITEM_SK
 
   def getiItemDesc: String = iItemDesc
   def getiCurrentPrice: Decimal = iCurrentPrice
@@ -83,26 +83,26 @@ class ItemRow(
   def internalRow: InternalRow =
     new GenericInternalRow(
       Array(
-    getLongOrNull(iItemSk, I_ITEM_SK),
-    getStringOrNullInternal(iItemId, I_ITEM_ID),
-    getDateOrNullFromJulianDays(iRecStartDateId, I_REC_START_DATE_ID),
-    getDateOrNullFromJulianDays(iRecEndDateId, I_REC_END_DATE_ID),
-    getStringOrNullInternal(iItemDesc, I_ITEM_DESC),
-    getDecimalOrNull(iCurrentPrice, I_CURRENT_PRICE, 7, 2),
-    getDecimalOrNull(iWholesaleCost, I_WHOLESALE_COST, 7, 2),
-    getIntOrNull(iBrandId, I_BRAND_ID),
-    getStringOrNullInternal(iBrand, I_BRAND),
-    getIntOrNull(iClassId, I_CLASS_ID),
-    getStringOrNullInternal(iClass, I_CLASS),
-    getIntOrNull(iCategoryId, I_CATEGORY_ID),
-    getStringOrNullInternal(iCategory, I_CATEGORY),
-    getIntOrNull(iManufactId, I_MANUFACT_ID),
-    getStringOrNullInternal(iManufact, I_MANUFACT),
-    getStringOrNullInternal(iSize, I_SIZE),
-    getStringOrNullInternal(iFormulation, I_FORMULATION),
-    getStringOrNullInternal(iColor, I_COLOR),
-    getStringOrNullInternal(iUnits, I_UNITS),
-    getStringOrNullInternal(iContainer, I_CONTAINER),
-    getIntOrNull(iManagerId, I_MANAGER_ID),
-    getStringOrNullInternal(iProductName, I_PRODUCT_NAME)))
+        getLongOrNull(iItemSk, I_ITEM_SK),
+        getStringOrNullInternal(iItemId, I_ITEM_ID),
+        getDateOrNullFromJulianDays(iRecStartDateId, I_REC_START_DATE_ID),
+        getDateOrNullFromJulianDays(iRecEndDateId, I_REC_END_DATE_ID),
+        getStringOrNullInternal(iItemDesc, I_ITEM_DESC),
+        getDecimalOrNull(iCurrentPrice, I_CURRENT_PRICE, 7, 2),
+        getDecimalOrNull(iWholesaleCost, I_WHOLESALE_COST, 7, 2),
+        getIntOrNull(iBrandId, I_BRAND_ID),
+        getStringOrNullInternal(iBrand, I_BRAND),
+        getIntOrNull(iClassId, I_CLASS_ID),
+        getStringOrNullInternal(iClass, I_CLASS),
+        getIntOrNull(iCategoryId, I_CATEGORY_ID),
+        getStringOrNullInternal(iCategory, I_CATEGORY),
+        getIntOrNull(iManufactId, I_MANUFACT_ID),
+        getStringOrNullInternal(iManufact, I_MANUFACT),
+        getStringOrNullInternal(iSize, I_SIZE),
+        getStringOrNullInternal(iFormulation, I_FORMULATION),
+        getStringOrNullInternal(iColor, I_COLOR),
+        getStringOrNullInternal(iUnits, I_UNITS),
+        getStringOrNullInternal(iContainer, I_CONTAINER),
+        getIntOrNull(iManagerId, I_MANAGER_ID),
+        getStringOrNullInternal(iProductName, I_PRODUCT_NAME)))
 }

@@ -18,12 +18,13 @@
 package io.trino.tpcds.row
 
 import java.util.{List => JList}
-import io.trino.tpcds.generator.CallCenterGeneratorColumn._
+
 import io.trino.tpcds.`type`.{Address, Decimal}
+import io.trino.tpcds.generator.CallCenterGeneratorColumn._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
-class CallCenterRow (
+class CallCenterRow(
     private val ccCallCenterSk: Long,
     private val ccCallCenterId: String,
     private val ccRecStartDateId: Long,
@@ -277,8 +278,7 @@ object CallCenterRow {
         ccCompanyName,
         ccAddress,
         ccTaxPercentage,
-        nullBitMap
-      )
+        nullBitMap)
     }
   }
 }

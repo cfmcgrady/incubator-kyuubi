@@ -16,40 +16,38 @@
  */
 package io.trino.tpcds.row
 
-import io.trino.tpcds.generator.PromotionGeneratorColumn._
-import io.trino.tpcds.`type`.Decimal
 import java.util.{List => JList}
 
-import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
+import io.trino.tpcds.`type`.Decimal
+import io.trino.tpcds.generator.PromotionGeneratorColumn._
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
 class PromotionRow(
-
-                    nullBitMap: Long,
-                    private val pPromoSk: Long,
-                    private val pPromoId: String,
-                    private val pStartDateId: Long,
-                    private val pEndDateId: Long,
-                    private val pItemSk: Long,
-                    private val pCost: Decimal,
-                    private val pResponseTarget: Int,
-                    private val pPromoName: String,
-                    private val pChannelDmail: Boolean,
-                    private val pChannelEmail: Boolean,
-                    private val pChannelCatalog: Boolean,
-                    private val pChannelTv: Boolean,
-                    private val pChannelRadio: Boolean,
-                    private val pChannelPress: Boolean,
-                    private val pChannelEvent: Boolean,
-                    private val pChannelDemo: Boolean,
-                    private val pChannelDetails: String,
-                    private val pPurpose: String,
-                    private val pDiscountActive: Boolean
-  ) extends TableRowWithNulls(nullBitMap, P_PROMO_SK)
+    nullBitMap: Long,
+    private val pPromoSk: Long,
+    private val pPromoId: String,
+    private val pStartDateId: Long,
+    private val pEndDateId: Long,
+    private val pItemSk: Long,
+    private val pCost: Decimal,
+    private val pResponseTarget: Int,
+    private val pPromoName: String,
+    private val pChannelDmail: Boolean,
+    private val pChannelEmail: Boolean,
+    private val pChannelCatalog: Boolean,
+    private val pChannelTv: Boolean,
+    private val pChannelRadio: Boolean,
+    private val pChannelPress: Boolean,
+    private val pChannelEvent: Boolean,
+    private val pChannelDemo: Boolean,
+    private val pChannelDetails: String,
+    private val pPurpose: String,
+    private val pDiscountActive: Boolean) extends TableRowWithNulls(nullBitMap, P_PROMO_SK)
   with KyuubiTableRowWithNulls {
 
-    override val nullBitMapInternal = nullBitMap
-    override val firstColumnInternal = P_PROMO_SK
+  override val nullBitMapInternal = nullBitMap
+  override val firstColumnInternal = P_PROMO_SK
 
   def getpPromoSk: Long = pPromoSk
   def getpPromoId: String = pPromoId
@@ -76,23 +74,23 @@ class PromotionRow(
   def internalRow: InternalRow =
     new GenericInternalRow(
       Array(
-    getLongOrNull(pPromoSk, P_PROMO_SK),
-    getStringOrNullInternal(pPromoId, P_PROMO_ID),
-    getLongOrNull(pStartDateId, P_START_DATE_ID),
-    getLongOrNull(pEndDateId, P_END_DATE_ID),
-    getLongOrNull(pItemSk, P_ITEM_SK),
-    getDecimalOrNull(pCost, P_COST, 5, 2),
-    getIntOrNull(pResponseTarget, P_RESPONSE_TARGET),
-    getStringOrNullInternal(pPromoName, P_PROMO_NAME),
-    getStringOrNullInternal(pChannelDmail, P_CHANNEL_DMAIL),
-    getStringOrNullInternal(pChannelEmail, P_CHANNEL_EMAIL),
-    getStringOrNullInternal(pChannelCatalog, P_CHANNEL_CATALOG),
-    getStringOrNullInternal(pChannelTv, P_CHANNEL_TV),
-    getStringOrNullInternal(pChannelRadio, P_CHANNEL_RADIO),
-    getStringOrNullInternal(pChannelPress, P_CHANNEL_PRESS),
-    getStringOrNullInternal(pChannelEvent, P_CHANNEL_EVENT),
-    getStringOrNullInternal(pChannelDemo, P_CHANNEL_DEMO),
-    getStringOrNullInternal(pChannelDetails, P_CHANNEL_DETAILS),
-    getStringOrNullInternal(pPurpose, P_PURPOSE),
-    getStringOrNullInternal(pDiscountActive, P_DISCOUNT_ACTIVE)))
+        getLongOrNull(pPromoSk, P_PROMO_SK),
+        getStringOrNullInternal(pPromoId, P_PROMO_ID),
+        getLongOrNull(pStartDateId, P_START_DATE_ID),
+        getLongOrNull(pEndDateId, P_END_DATE_ID),
+        getLongOrNull(pItemSk, P_ITEM_SK),
+        getDecimalOrNull(pCost, P_COST, 5, 2),
+        getIntOrNull(pResponseTarget, P_RESPONSE_TARGET),
+        getStringOrNullInternal(pPromoName, P_PROMO_NAME),
+        getStringOrNullInternal(pChannelDmail, P_CHANNEL_DMAIL),
+        getStringOrNullInternal(pChannelEmail, P_CHANNEL_EMAIL),
+        getStringOrNullInternal(pChannelCatalog, P_CHANNEL_CATALOG),
+        getStringOrNullInternal(pChannelTv, P_CHANNEL_TV),
+        getStringOrNullInternal(pChannelRadio, P_CHANNEL_RADIO),
+        getStringOrNullInternal(pChannelPress, P_CHANNEL_PRESS),
+        getStringOrNullInternal(pChannelEvent, P_CHANNEL_EVENT),
+        getStringOrNullInternal(pChannelDemo, P_CHANNEL_DEMO),
+        getStringOrNullInternal(pChannelDetails, P_CHANNEL_DETAILS),
+        getStringOrNullInternal(pPurpose, P_PURPOSE),
+        getStringOrNullInternal(pDiscountActive, P_DISCOUNT_ACTIVE)))
 }

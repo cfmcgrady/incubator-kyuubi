@@ -17,26 +17,23 @@
 
 package io.trino.tpcds.row
 
-import io.trino.tpcds.generator.HouseholdDemographicsGeneratorColumn._
-
 import java.util.{List => JList}
 
-import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
+import io.trino.tpcds.generator.HouseholdDemographicsGeneratorColumn._
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
 class HouseholdDemographicsRow(
-                                nullBitMap: Long,
-                                private val hdDemoSk: Long,
-                                private val hdIncomeBandId: Long,
-                                private val hdBuyPotential: String,
-                                private val hdDepCount: Int,
-                                private val hdVehicleCount: Int
-
-  ) extends TableRowWithNulls(nullBitMap, HD_DEMO_SK)
+    nullBitMap: Long,
+    private val hdDemoSk: Long,
+    private val hdIncomeBandId: Long,
+    private val hdBuyPotential: String,
+    private val hdDepCount: Int,
+    private val hdVehicleCount: Int) extends TableRowWithNulls(nullBitMap, HD_DEMO_SK)
   with KyuubiTableRowWithNulls {
 
-    override val nullBitMapInternal = nullBitMap
-    override val firstColumnInternal = HD_DEMO_SK
+  override val nullBitMapInternal = nullBitMap
+  override val firstColumnInternal = HD_DEMO_SK
 
   def getHdDemoSk: Long = hdDemoSk
   def getHdIncomeBandId: Long = hdIncomeBandId
@@ -49,9 +46,9 @@ class HouseholdDemographicsRow(
   def internalRow: InternalRow =
     new GenericInternalRow(
       Array(
-    getLongOrNull(hdDemoSk, HD_DEMO_SK),
-    getLongOrNull(hdIncomeBandId, HD_INCOME_BAND_ID),
-    getStringOrNullInternal(hdBuyPotential, HD_BUY_POTENTIAL),
-    getIntOrNull(hdDepCount, HD_DEP_COUNT),
-    getIntOrNull(hdVehicleCount, HD_VEHICLE_COUNT)))
+        getLongOrNull(hdDemoSk, HD_DEMO_SK),
+        getLongOrNull(hdIncomeBandId, HD_INCOME_BAND_ID),
+        getStringOrNullInternal(hdBuyPotential, HD_BUY_POTENTIAL),
+        getIntOrNull(hdDepCount, HD_DEP_COUNT),
+        getIntOrNull(hdVehicleCount, HD_VEHICLE_COUNT)))
 }

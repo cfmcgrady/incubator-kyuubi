@@ -17,12 +17,12 @@
 
 package io.trino.tpcds.row
 
-import io.trino.tpcds.generator.CatalogReturnsGeneratorColumn._
-import io.trino.tpcds.`type`.Pricing
 import java.util.{List => JList}
 
-import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
+import io.trino.tpcds.`type`.Pricing
+import io.trino.tpcds.generator.CatalogReturnsGeneratorColumn._
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
 class CatalogReturnsRow(
     private val crReturnedDateSk: Long,

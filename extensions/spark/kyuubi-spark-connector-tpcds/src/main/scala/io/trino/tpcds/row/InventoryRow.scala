@@ -16,19 +16,18 @@
  */
 package io.trino.tpcds.row
 
-import io.trino.tpcds.generator.InventoryGeneratorColumn._
 import java.util.{List => JList}
 
-import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
+import io.trino.tpcds.generator.InventoryGeneratorColumn._
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
 class InventoryRow(
-                    nullBitMap: Long,
-                    private val invDateSk: Long,
-                    private val invItemSk: Long,
-                    private val invWarehouseSk: Long,
-                    private val invQuantityOnHand: Int
-  ) extends TableRowWithNulls(nullBitMap, INV_DATE_SK)
+    nullBitMap: Long,
+    private val invDateSk: Long,
+    private val invItemSk: Long,
+    private val invWarehouseSk: Long,
+    private val invQuantityOnHand: Int) extends TableRowWithNulls(nullBitMap, INV_DATE_SK)
   with KyuubiTableRowWithNulls {
 
   override val nullBitMapInternal = nullBitMap
@@ -43,8 +42,8 @@ class InventoryRow(
   def internalRow: InternalRow =
     new GenericInternalRow(
       Array(
-    getLongOrNull(invDateSk, INV_DATE_SK),
-    getLongOrNull(invItemSk, INV_ITEM_SK),
-    getLongOrNull(invWarehouseSk, INV_WAREHOUSE_SK),
-    getIntOrNull(invQuantityOnHand, INV_QUANTITY_ON_HAND)))
+        getLongOrNull(invDateSk, INV_DATE_SK),
+        getLongOrNull(invItemSk, INV_ITEM_SK),
+        getLongOrNull(invWarehouseSk, INV_WAREHOUSE_SK),
+        getIntOrNull(invQuantityOnHand, INV_QUANTITY_ON_HAND)))
 }

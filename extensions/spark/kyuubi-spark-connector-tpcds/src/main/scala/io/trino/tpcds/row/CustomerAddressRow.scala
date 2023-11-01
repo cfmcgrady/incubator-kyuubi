@@ -16,11 +16,12 @@
  */
 package io.trino.tpcds.row
 
-import io.trino.tpcds.generator.CustomerAddressGeneratorColumn._
+import java.util.{List => JList}
+
 import io.trino.tpcds.`type`.Address
+import io.trino.tpcds.generator.CustomerAddressGeneratorColumn._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
-import java.util.{List => JList}
 
 class CustomerAddressRow(
     nullBitMap: Long,

@@ -17,42 +17,40 @@
 
 package io.trino.tpcds.row
 
-import io.trino.tpcds.generator.DateDimGeneratorColumn._
-
 import java.util.{List => JList}
 
+import io.trino.tpcds.generator.DateDimGeneratorColumn._
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
 class DateDimRow(
     nullBitMap: Long,
-                  private val dDateSk: Long,
-                  private val dDateId: String,
-                  private val dMonthSeq: Int,
-                  private val dWeekSeq: Int,
-                  private val dQuarterSeq: Int,
-                  private val dYear: Int,
-                  private val dDow: Int,
-                  private val dMoy: Int,
-                  private val dDom: Int,
-                  private val dQoy: Int,
-                  private val dFyYear: Int,
-                  private val dFyQuarterSeq: Int,
-                  private val dFyWeekSeq: Int,
-                  private val dDayName: String,
-                  private val dHoliday: Boolean,
-                  private val dWeekend: Boolean,
-                  private val dFollowingHoliday: Boolean,
-                  private val dFirstDom: Int,
-                  private val dLastDom: Int,
-                  private val dSameDayLy: Int,
-                  private val dSameDayLq: Int,
-                  private val dCurrentDay: Boolean,
-                  private val dCurrentWeek: Boolean,
-                  private val dCurrentMonth: Boolean,
-                  private val dCurrentQuarter: Boolean,
-                  private val dCurrentYear: Boolean
-  ) extends TableRowWithNulls(nullBitMap, D_DATE_SK)
+    private val dDateSk: Long,
+    private val dDateId: String,
+    private val dMonthSeq: Int,
+    private val dWeekSeq: Int,
+    private val dQuarterSeq: Int,
+    private val dYear: Int,
+    private val dDow: Int,
+    private val dMoy: Int,
+    private val dDom: Int,
+    private val dQoy: Int,
+    private val dFyYear: Int,
+    private val dFyQuarterSeq: Int,
+    private val dFyWeekSeq: Int,
+    private val dDayName: String,
+    private val dHoliday: Boolean,
+    private val dWeekend: Boolean,
+    private val dFollowingHoliday: Boolean,
+    private val dFirstDom: Int,
+    private val dLastDom: Int,
+    private val dSameDayLy: Int,
+    private val dSameDayLq: Int,
+    private val dCurrentDay: Boolean,
+    private val dCurrentWeek: Boolean,
+    private val dCurrentMonth: Boolean,
+    private val dCurrentQuarter: Boolean,
+    private val dCurrentYear: Boolean) extends TableRowWithNulls(nullBitMap, D_DATE_SK)
   with KyuubiTableRowWithNulls {
 
   override val nullBitMapInternal = nullBitMap
@@ -130,7 +128,9 @@ class DateDimRow(
         getIntOrNull(dFyQuarterSeq, D_FY_QUARTER_SEQ),
         getIntOrNull(dFyWeekSeq, D_FY_WEEK_SEQ),
         getStringOrNullInternal(dDayName, D_DAY_NAME),
-        getStringOrNullInternal(java.lang.String.format("%4dQ%d", dYear.asInstanceOf[Object], dQoy.asInstanceOf[Object]), D_QUARTER_NAME),
+        getStringOrNullInternal(
+          java.lang.String.format("%4dQ%d", dYear.asInstanceOf[Object], dQoy.asInstanceOf[Object]),
+          D_QUARTER_NAME),
         getStringOrNullInternal(dHoliday, D_HOLIDAY),
         getStringOrNullInternal(dWeekend, D_WEEKEND),
         getStringOrNullInternal(dFollowingHoliday, D_FOLLOWING_HOLIDAY),

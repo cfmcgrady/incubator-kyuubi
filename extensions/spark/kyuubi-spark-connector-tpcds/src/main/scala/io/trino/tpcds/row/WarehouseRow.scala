@@ -16,26 +16,24 @@
  */
 package io.trino.tpcds.row
 
-import io.trino.tpcds.generator.WarehouseGeneratorColumn._
-import io.trino.tpcds.`type`.Address
 import java.util.{List => JList}
 
-import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
+import io.trino.tpcds.`type`.Address
+import io.trino.tpcds.generator.WarehouseGeneratorColumn._
 import org.apache.spark.sql.catalyst.InternalRow
-
+import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
 class WarehouseRow(
-                    nullBitMap: Long,
-                    private val wWarehouseSk: Long,
-                    private val wWarehouseId: String,
-                    private val wWarehouseName: String,
-                    private val wWarehouseSqFt: Int,
-                    private val wAddress: Address
-  ) extends TableRowWithNulls(nullBitMap, W_WAREHOUSE_SK)
+    nullBitMap: Long,
+    private val wWarehouseSk: Long,
+    private val wWarehouseId: String,
+    private val wWarehouseName: String,
+    private val wWarehouseSqFt: Int,
+    private val wAddress: Address) extends TableRowWithNulls(nullBitMap, W_WAREHOUSE_SK)
   with KyuubiTableRowWithNulls {
 
-    override val nullBitMapInternal = nullBitMap
-    override val firstColumnInternal = W_WAREHOUSE_SK
+  override val nullBitMapInternal = nullBitMap
+  override val firstColumnInternal = W_WAREHOUSE_SK
 
   def getWWarehouseSk: Long = wWarehouseSk
   def getWWarehouseId: String = wWarehouseId
@@ -48,18 +46,18 @@ class WarehouseRow(
   def internalRow: InternalRow =
     new GenericInternalRow(
       Array(
-    getLongOrNull(wWarehouseSk, W_WAREHOUSE_SK),
-    getStringOrNullInternal(wWarehouseId, W_WAREHOUSE_ID),
-    getStringOrNullInternal(wWarehouseName, W_WAREHOUSE_NAME),
-    getIntOrNull(wWarehouseSqFt, W_WAREHOUSE_SQ_FT),
-    getStringOrNullInternal(wAddress.getStreetNumber.toString, W_ADDRESS_STREET_NUM),
-    getStringOrNullInternal(wAddress.getStreetName, W_ADDRESS_STREET_NAME1),
-    getStringOrNullInternal(wAddress.getStreetType, W_ADDRESS_STREET_TYPE),
-    getStringOrNullInternal(wAddress.getSuiteNumber, W_ADDRESS_SUITE_NUM),
-    getStringOrNullInternal(wAddress.getCity, W_ADDRESS_CITY),
-    getStringOrNullInternal(wAddress.getCounty, W_ADDRESS_COUNTY),
-    getStringOrNullInternal(wAddress.getState, W_ADDRESS_STATE),
-    getStringOrNullInternal("%05d".format(wAddress.getZip), W_ADDRESS_ZIP),
-    getStringOrNullInternal(wAddress.getCountry, W_ADDRESS_COUNTRY),
-    getDecimalOrNull(wAddress.getGmtOffset, W_ADDRESS_GMT_OFFSET, 5, 2)))
+        getLongOrNull(wWarehouseSk, W_WAREHOUSE_SK),
+        getStringOrNullInternal(wWarehouseId, W_WAREHOUSE_ID),
+        getStringOrNullInternal(wWarehouseName, W_WAREHOUSE_NAME),
+        getIntOrNull(wWarehouseSqFt, W_WAREHOUSE_SQ_FT),
+        getStringOrNullInternal(wAddress.getStreetNumber.toString, W_ADDRESS_STREET_NUM),
+        getStringOrNullInternal(wAddress.getStreetName, W_ADDRESS_STREET_NAME1),
+        getStringOrNullInternal(wAddress.getStreetType, W_ADDRESS_STREET_TYPE),
+        getStringOrNullInternal(wAddress.getSuiteNumber, W_ADDRESS_SUITE_NUM),
+        getStringOrNullInternal(wAddress.getCity, W_ADDRESS_CITY),
+        getStringOrNullInternal(wAddress.getCounty, W_ADDRESS_COUNTY),
+        getStringOrNullInternal(wAddress.getState, W_ADDRESS_STATE),
+        getStringOrNullInternal("%05d".format(wAddress.getZip), W_ADDRESS_ZIP),
+        getStringOrNullInternal(wAddress.getCountry, W_ADDRESS_COUNTRY),
+        getDecimalOrNull(wAddress.getGmtOffset, W_ADDRESS_GMT_OFFSET, 5, 2)))
 }

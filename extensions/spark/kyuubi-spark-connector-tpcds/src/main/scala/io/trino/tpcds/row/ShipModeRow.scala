@@ -16,26 +16,24 @@
  */
 package io.trino.tpcds.row
 
-import io.trino.tpcds.generator.ShipModeGeneratorColumn._
-
 import java.util.{List => JList}
 
-import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
+import io.trino.tpcds.generator.ShipModeGeneratorColumn._
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
 class ShipModeRow(
-                   nullBitMap: Long,
-                   private val smShipModeSk: Long,
-                   private val smShipModeId: String,
-                   private val smType: String,
-                   private val smCode: String,
-                   private val smCarrier: String,
-                   private val smContract: String
-  ) extends TableRowWithNulls(nullBitMap, SM_SHIP_MODE_SK)
+    nullBitMap: Long,
+    private val smShipModeSk: Long,
+    private val smShipModeId: String,
+    private val smType: String,
+    private val smCode: String,
+    private val smCarrier: String,
+    private val smContract: String) extends TableRowWithNulls(nullBitMap, SM_SHIP_MODE_SK)
   with KyuubiTableRowWithNulls {
 
-    override val nullBitMapInternal = nullBitMap
-    override val firstColumnInternal = SM_SHIP_MODE_SK
+  override val nullBitMapInternal = nullBitMap
+  override val firstColumnInternal = SM_SHIP_MODE_SK
 
   def getSmShipModeSk: Long = smShipModeSk
   def getSmShipModeId: String = smShipModeId
@@ -49,11 +47,10 @@ class ShipModeRow(
   def internalRow: InternalRow =
     new GenericInternalRow(
       Array(
-    getLongOrNull(smShipModeSk, SM_SHIP_MODE_SK),
-    getStringOrNullInternal(smShipModeId, SM_SHIP_MODE_ID),
-    getStringOrNullInternal(smType, SM_TYPE),
-    getStringOrNullInternal(smCode, SM_CODE),
-    getStringOrNullInternal(smCarrier, SM_CARRIER),
-    getStringOrNullInternal(smContract, SM_CONTRACT))
-  )
+        getLongOrNull(smShipModeSk, SM_SHIP_MODE_SK),
+        getStringOrNullInternal(smShipModeId, SM_SHIP_MODE_ID),
+        getStringOrNullInternal(smType, SM_TYPE),
+        getStringOrNullInternal(smCode, SM_CODE),
+        getStringOrNullInternal(smCarrier, SM_CARRIER),
+        getStringOrNullInternal(smContract, SM_CONTRACT)))
 }

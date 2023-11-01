@@ -16,29 +16,28 @@
  */
 package io.trino.tpcds.row
 
-import io.trino.tpcds.generator.TimeDimGeneratorColumn._
 import java.util.{List => JList}
 
-import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
+import io.trino.tpcds.generator.TimeDimGeneratorColumn._
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
 class TimeDimRow(
-                  nullBitMap: Long,
-                  private val tTimeSk: Long,
-                  private val tTimeId: String,
-                  private val tTime: Int,
-                  private val tHour: Int,
-                  private val tMinute: Int,
-                  private val tSecond: Int,
-                  private val tAmPm: String,
-                  private val tShift: String,
-                  private val tSubShift: String,
-                  private val tMealTime: String
-  ) extends TableRowWithNulls(nullBitMap, T_TIME_SK)
+    nullBitMap: Long,
+    private val tTimeSk: Long,
+    private val tTimeId: String,
+    private val tTime: Int,
+    private val tHour: Int,
+    private val tMinute: Int,
+    private val tSecond: Int,
+    private val tAmPm: String,
+    private val tShift: String,
+    private val tSubShift: String,
+    private val tMealTime: String) extends TableRowWithNulls(nullBitMap, T_TIME_SK)
   with KyuubiTableRowWithNulls {
 
-    override val nullBitMapInternal = nullBitMap
-    override val firstColumnInternal = T_TIME_SK
+  override val nullBitMapInternal = nullBitMap
+  override val firstColumnInternal = T_TIME_SK
 
   def getTTimeSk: Long = tTimeSk
   def getTTimeId: String = tTimeId
@@ -56,14 +55,14 @@ class TimeDimRow(
   def internalRow: InternalRow =
     new GenericInternalRow(
       Array(
-    getLongOrNull(tTimeSk, T_TIME_SK),
-    getStringOrNullInternal(tTimeId, T_TIME_ID),
-    getIntOrNull(tTime, T_TIME),
-    getIntOrNull(tHour, T_HOUR),
-    getIntOrNull(tMinute, T_MINUTE),
-    getIntOrNull(tSecond, T_SECOND),
-    getStringOrNullInternal(tAmPm, T_AM_PM),
-    getStringOrNullInternal(tShift, T_SHIFT),
-    getStringOrNullInternal(tSubShift, T_SUB_SHIFT),
-    getStringOrNullInternal(tMealTime, T_MEAL_TIME)))
+        getLongOrNull(tTimeSk, T_TIME_SK),
+        getStringOrNullInternal(tTimeId, T_TIME_ID),
+        getIntOrNull(tTime, T_TIME),
+        getIntOrNull(tHour, T_HOUR),
+        getIntOrNull(tMinute, T_MINUTE),
+        getIntOrNull(tSecond, T_SECOND),
+        getStringOrNullInternal(tAmPm, T_AM_PM),
+        getStringOrNullInternal(tShift, T_SHIFT),
+        getStringOrNullInternal(tSubShift, T_SUB_SHIFT),
+        getStringOrNullInternal(tMealTime, T_MEAL_TIME)))
 }

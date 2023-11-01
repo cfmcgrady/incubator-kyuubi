@@ -17,29 +17,27 @@
 
 package io.trino.tpcds.row
 
-import io.trino.tpcds.generator.CustomerDemographicsGeneratorColumn._
-import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
-import org.apache.spark.sql.catalyst.InternalRow
-
 import java.util.{List => JList}
 
-class CustomerDemographicsRow(
-                               nullBitMap: Long,
-                               private val cdDemoSk: Long,
-                               private val cdGender: String,
-                               private val cdMaritalStatus: String,
-                               private val cdEducationStatus: String,
-                               private val cdPurchaseEstimate: Int,
-                               private val cdCreditRating: String,
-                               private val cdDepCount: Int,
-                               private val cdDepEmployedCount: Int,
-                               private val cdDepCollegeCount: Int
+import io.trino.tpcds.generator.CustomerDemographicsGeneratorColumn._
+import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
-                               ) extends TableRowWithNulls(nullBitMap, CD_DEMO_SK)
+class CustomerDemographicsRow(
+    nullBitMap: Long,
+    private val cdDemoSk: Long,
+    private val cdGender: String,
+    private val cdMaritalStatus: String,
+    private val cdEducationStatus: String,
+    private val cdPurchaseEstimate: Int,
+    private val cdCreditRating: String,
+    private val cdDepCount: Int,
+    private val cdDepEmployedCount: Int,
+    private val cdDepCollegeCount: Int) extends TableRowWithNulls(nullBitMap, CD_DEMO_SK)
   with KyuubiTableRowWithNulls {
 
-    override val nullBitMapInternal = nullBitMap
-    override val firstColumnInternal = CD_DEMO_SK
+  override val nullBitMapInternal = nullBitMap
+  override val firstColumnInternal = CD_DEMO_SK
 
   def getCdDemoSk: Long = cdDemoSk
   def getCdGender: String = cdGender

@@ -17,7 +17,11 @@
 
 package io.trino.tpcds.row
 
+import java.util.{List => JList}
+
 import io.trino.tpcds.`type`.{Decimal => TPCDSDecimal}
+import io.trino.tpcds.`type`.Pricing
+import io.trino.tpcds.Options
 import io.trino.tpcds.generator.CatalogSalesGeneratorColumn.CS_BILL_ADDR_SK
 import io.trino.tpcds.generator.CatalogSalesGeneratorColumn.CS_BILL_CDEMO_SK
 import io.trino.tpcds.generator.CatalogSalesGeneratorColumn.CS_BILL_CUSTOMER_SK
@@ -52,11 +56,7 @@ import io.trino.tpcds.generator.CatalogSalesGeneratorColumn.CS_SOLD_DATE_SK
 import io.trino.tpcds.generator.CatalogSalesGeneratorColumn.CS_SOLD_ITEM_SK
 import io.trino.tpcds.generator.CatalogSalesGeneratorColumn.CS_SOLD_TIME_SK
 import io.trino.tpcds.generator.CatalogSalesGeneratorColumn.CS_WAREHOUSE_SK
-import io.trino.tpcds.`type`.Pricing
-import java.util.{List => JList}
-
 import io.trino.tpcds.generator.GeneratorColumn
-import io.trino.tpcds.Options
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 import org.apache.spark.sql.catalyst.util.{DateTimeUtils, RebaseDateTime}
@@ -164,7 +164,11 @@ class CatalogSalesRow(
         getDecimalOrNull(csPricing.getNetPaid, CS_PRICING_NET_PAID, 7, 2),
         getDecimalOrNull(csPricing.getNetPaidIncludingTax, CS_PRICING_NET_PAID_INC_TAX, 7, 2),
         getDecimalOrNull(csPricing.getNetPaidIncludingShipping, CS_PRICING_NET_PAID_INC_SHIP, 7, 2),
-        getDecimalOrNull(csPricing.getNetPaidIncludingShippingAndTax, CS_PRICING_NET_PAID_INC_SHIP_TAX, 7, 2),
+        getDecimalOrNull(
+          csPricing.getNetPaidIncludingShippingAndTax,
+          CS_PRICING_NET_PAID_INC_SHIP_TAX,
+          7,
+          2),
         getDecimalOrNull(csPricing.getNetProfit, CS_PRICING_NET_PROFIT, 7, 2)))
   }
 }
@@ -197,7 +201,8 @@ trait KyuubiTableRowWithNulls { self: TableRowWithNulls =>
       column: GeneratorColumn,
       precision: Int,
       scale: Int): Decimal = {
-    if (isNullInternal(column)) null else {
+    if (isNullInternal(column)) null
+    else {
       val decimal = Decimal(value)
       decimal.changePrecision(precision, scale)
       decimal

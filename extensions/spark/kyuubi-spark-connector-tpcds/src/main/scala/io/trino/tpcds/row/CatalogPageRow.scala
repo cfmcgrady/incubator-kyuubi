@@ -17,23 +17,23 @@
 
 package io.trino.tpcds.row
 
-import io.trino.tpcds.generator.CatalogPageGeneratorColumn._
-import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
-import org.apache.spark.sql.catalyst.InternalRow
-
 import java.util.{List => JList}
 
+import io.trino.tpcds.generator.CatalogPageGeneratorColumn._
+import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
+
 class CatalogPageRow(
-   private val cpCatalogPageSk: Long,
-   private val cpCatalogPageId: String,
-   private val cpStartDateId: Long,
-   private val cpEndDateId: Long,
-   private val cpDepartment: String,
-   private val cpCatalogNumber: Int,
-   private val cpCatalogPageNumber: Int,
-   private val cpDescription: String,
-   private val cpType: String,
-   nullBitMap: Long) extends TableRowWithNulls(nullBitMap, CP_CATALOG_PAGE_SK)
+    private val cpCatalogPageSk: Long,
+    private val cpCatalogPageId: String,
+    private val cpStartDateId: Long,
+    private val cpEndDateId: Long,
+    private val cpDepartment: String,
+    private val cpCatalogNumber: Int,
+    private val cpCatalogPageNumber: Int,
+    private val cpDescription: String,
+    private val cpType: String,
+    nullBitMap: Long) extends TableRowWithNulls(nullBitMap, CP_CATALOG_PAGE_SK)
   with KyuubiTableRowWithNulls {
 
   override val nullBitMapInternal = nullBitMap

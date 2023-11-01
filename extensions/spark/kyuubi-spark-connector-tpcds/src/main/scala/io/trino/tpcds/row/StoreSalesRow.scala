@@ -16,31 +16,30 @@
  */
 package io.trino.tpcds.row
 
-import io.trino.tpcds.generator.StoreSalesGeneratorColumn._
-import io.trino.tpcds.`type`.Pricing
 import java.util.{List => JList}
 
-import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
+import io.trino.tpcds.`type`.Pricing
+import io.trino.tpcds.generator.StoreSalesGeneratorColumn._
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
 class StoreSalesRow(
-                     nullBitMap: Long,
-                     private val ssSoldDateSk: Long,
-                     private val ssSoldTimeSk: Long,
-                     private val ssSoldItemSk: Long,
-                     private val ssSoldCustomerSk: Long,
-                     private val ssSoldCdemoSk: Long,
-                     private val ssSoldHdemoSk: Long,
-                     private val ssSoldAddrSk: Long,
-                     private val ssSoldStoreSk: Long,
-                     private val ssSoldPromoSk: Long,
-                     private val ssTicketNumber: Long,
-                     private val ssPricing: Pricing
-  ) extends TableRowWithNulls(nullBitMap, SS_SOLD_DATE_SK)
+    nullBitMap: Long,
+    private val ssSoldDateSk: Long,
+    private val ssSoldTimeSk: Long,
+    private val ssSoldItemSk: Long,
+    private val ssSoldCustomerSk: Long,
+    private val ssSoldCdemoSk: Long,
+    private val ssSoldHdemoSk: Long,
+    private val ssSoldAddrSk: Long,
+    private val ssSoldStoreSk: Long,
+    private val ssSoldPromoSk: Long,
+    private val ssTicketNumber: Long,
+    private val ssPricing: Pricing) extends TableRowWithNulls(nullBitMap, SS_SOLD_DATE_SK)
   with KyuubiTableRowWithNulls {
 
-    override val nullBitMapInternal = nullBitMap
-    override val firstColumnInternal = SS_SOLD_DATE_SK
+  override val nullBitMapInternal = nullBitMap
+  override val firstColumnInternal = SS_SOLD_DATE_SK
 
   def getSsSoldDateSk: Long = ssSoldDateSk
   def getSsSoldTimeSk: Long = ssSoldTimeSk
@@ -59,17 +58,17 @@ class StoreSalesRow(
   def internalRow: InternalRow =
     new GenericInternalRow(
       Array(
-    getLongOrNull(ssSoldDateSk, SS_SOLD_DATE_SK),
-    getLongOrNull(ssSoldTimeSk, SS_SOLD_TIME_SK),
-    getLongOrNull(ssSoldItemSk, SS_SOLD_ITEM_SK),
-    getLongOrNull(ssSoldCustomerSk, SS_SOLD_CUSTOMER_SK),
-    getLongOrNull(ssSoldCdemoSk, SS_SOLD_CDEMO_SK),
-    getLongOrNull(ssSoldHdemoSk, SS_SOLD_HDEMO_SK),
-    getLongOrNull(ssSoldAddrSk, SS_SOLD_ADDR_SK),
-    getLongOrNull(ssSoldStoreSk, SS_SOLD_STORE_SK),
-    getLongOrNull(ssSoldPromoSk, SS_SOLD_PROMO_SK),
-    getLongOrNull(ssTicketNumber, SS_TICKET_NUMBER),
-    getIntOrNull(ssPricing.getQuantity, SS_PRICING_QUANTITY),
+        getLongOrNull(ssSoldDateSk, SS_SOLD_DATE_SK),
+        getLongOrNull(ssSoldTimeSk, SS_SOLD_TIME_SK),
+        getLongOrNull(ssSoldItemSk, SS_SOLD_ITEM_SK),
+        getLongOrNull(ssSoldCustomerSk, SS_SOLD_CUSTOMER_SK),
+        getLongOrNull(ssSoldCdemoSk, SS_SOLD_CDEMO_SK),
+        getLongOrNull(ssSoldHdemoSk, SS_SOLD_HDEMO_SK),
+        getLongOrNull(ssSoldAddrSk, SS_SOLD_ADDR_SK),
+        getLongOrNull(ssSoldStoreSk, SS_SOLD_STORE_SK),
+        getLongOrNull(ssSoldPromoSk, SS_SOLD_PROMO_SK),
+        getLongOrNull(ssTicketNumber, SS_TICKET_NUMBER),
+        getIntOrNull(ssPricing.getQuantity, SS_PRICING_QUANTITY),
         getDecimalOrNull(ssPricing.getWholesaleCost, SS_PRICING_WHOLESALE_COST, 7, 2),
         getDecimalOrNull(ssPricing.getListPrice, SS_PRICING_LIST_PRICE, 7, 2),
         getDecimalOrNull(ssPricing.getSalesPrice, SS_PRICING_SALES_PRICE, 7, 2),

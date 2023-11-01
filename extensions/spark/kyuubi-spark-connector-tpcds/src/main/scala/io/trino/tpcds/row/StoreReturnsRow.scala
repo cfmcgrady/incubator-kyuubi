@@ -16,31 +16,30 @@
  */
 package io.trino.tpcds.row
 
-import io.trino.tpcds.generator.StoreReturnsGeneratorColumn._
-import io.trino.tpcds.`type`.Pricing
 import java.util.{List => JList}
 
-import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
+import io.trino.tpcds.`type`.Pricing
+import io.trino.tpcds.generator.StoreReturnsGeneratorColumn._
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
 class StoreReturnsRow(
-                       nullBitMap: Long,
-                       private val srReturnedDateSk: Long,
-                       private val srReturnedTimeSk: Long,
-                       private val srItemSk: Long,
-                       private val srCustomerSk: Long,
-                       private val srCdemoSk: Long,
-                       private val srHdemoSk: Long,
-                       private val srAddrSk: Long,
-                       private val srStoreSk: Long,
-                       private val srReasonSk: Long,
-                       private val srTicketNumber: Long,
-                       private val srPricing: Pricing
-  ) extends TableRowWithNulls(nullBitMap, SR_RETURNED_DATE_SK)
+    nullBitMap: Long,
+    private val srReturnedDateSk: Long,
+    private val srReturnedTimeSk: Long,
+    private val srItemSk: Long,
+    private val srCustomerSk: Long,
+    private val srCdemoSk: Long,
+    private val srHdemoSk: Long,
+    private val srAddrSk: Long,
+    private val srStoreSk: Long,
+    private val srReasonSk: Long,
+    private val srTicketNumber: Long,
+    private val srPricing: Pricing) extends TableRowWithNulls(nullBitMap, SR_RETURNED_DATE_SK)
   with KyuubiTableRowWithNulls {
 
-    override val nullBitMapInternal = nullBitMap
-    override val firstColumnInternal = SR_RETURNED_DATE_SK
+  override val nullBitMapInternal = nullBitMap
+  override val firstColumnInternal = SR_RETURNED_DATE_SK
 
   def getSrReturnedDateSk: Long = srReturnedDateSk
   def getSrReturnedTimeSk: Long = srReturnedTimeSk
@@ -59,17 +58,17 @@ class StoreReturnsRow(
   def internalRow: InternalRow =
     new GenericInternalRow(
       Array(
-    getLongOrNull(srReturnedDateSk, SR_RETURNED_DATE_SK),
-    getLongOrNull(srReturnedTimeSk, SR_RETURNED_TIME_SK),
-    getLongOrNull(srItemSk, SR_ITEM_SK),
-    getLongOrNull(srCustomerSk, SR_CUSTOMER_SK),
-    getLongOrNull(srCdemoSk, SR_CDEMO_SK),
-    getLongOrNull(srHdemoSk, SR_HDEMO_SK),
-    getLongOrNull(srAddrSk, SR_ADDR_SK),
-    getLongOrNull(srStoreSk, SR_STORE_SK),
-    getLongOrNull(srReasonSk, SR_REASON_SK),
-    getLongOrNull(srTicketNumber, SR_TICKET_NUMBER),
-    getIntOrNull(srPricing.getQuantity, SR_PRICING_QUANTITY),
+        getLongOrNull(srReturnedDateSk, SR_RETURNED_DATE_SK),
+        getLongOrNull(srReturnedTimeSk, SR_RETURNED_TIME_SK),
+        getLongOrNull(srItemSk, SR_ITEM_SK),
+        getLongOrNull(srCustomerSk, SR_CUSTOMER_SK),
+        getLongOrNull(srCdemoSk, SR_CDEMO_SK),
+        getLongOrNull(srHdemoSk, SR_HDEMO_SK),
+        getLongOrNull(srAddrSk, SR_ADDR_SK),
+        getLongOrNull(srStoreSk, SR_STORE_SK),
+        getLongOrNull(srReasonSk, SR_REASON_SK),
+        getLongOrNull(srTicketNumber, SR_TICKET_NUMBER),
+        getIntOrNull(srPricing.getQuantity, SR_PRICING_QUANTITY),
         getDecimalOrNull(srPricing.getNetPaid, SR_PRICING_NET_PAID, 7, 2),
         getDecimalOrNull(srPricing.getExtTax, SR_PRICING_EXT_TAX, 7, 2),
         getDecimalOrNull(srPricing.getNetPaidIncludingTax, SR_PRICING_NET_PAID_INC_TAX, 7, 2),

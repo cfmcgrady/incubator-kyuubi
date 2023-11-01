@@ -16,35 +16,34 @@
  */
 package io.trino.tpcds.row
 
-import io.trino.tpcds.generator.WebReturnsGeneratorColumn._
-import io.trino.tpcds.`type`.Pricing
 import java.util.{List => JList}
 
-import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
+import io.trino.tpcds.`type`.Pricing
+import io.trino.tpcds.generator.WebReturnsGeneratorColumn._
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
 class WebReturnsRow(
-                     nullBitMap: Long,
-                     private val wrReturnedDateSk: Long,
-                     private val wrReturnedTimeSk: Long,
-                     private val wrItemSk: Long,
-                     private val wrRefundedCustomerSk: Long,
-                     private val wrRefundedCdemoSk: Long,
-                     private val wrRefundedHdemoSk: Long,
-                     private val wrRefundedAddrSk: Long,
-                     private val wrReturningCustomerSk: Long,
-                     private val wrReturningCdemoSk: Long,
-                     private val wrReturningHdemoSk: Long,
-                     private val wrReturningAddrSk: Long,
-                     private val wrWebPageSk: Long,
-                     private val wrReasonSk: Long,
-                     private val wrOrderNumber: Long,
-                     private val wrPricing: Pricing
-  ) extends TableRowWithNulls(nullBitMap, WR_RETURNED_DATE_SK)
+    nullBitMap: Long,
+    private val wrReturnedDateSk: Long,
+    private val wrReturnedTimeSk: Long,
+    private val wrItemSk: Long,
+    private val wrRefundedCustomerSk: Long,
+    private val wrRefundedCdemoSk: Long,
+    private val wrRefundedHdemoSk: Long,
+    private val wrRefundedAddrSk: Long,
+    private val wrReturningCustomerSk: Long,
+    private val wrReturningCdemoSk: Long,
+    private val wrReturningHdemoSk: Long,
+    private val wrReturningAddrSk: Long,
+    private val wrWebPageSk: Long,
+    private val wrReasonSk: Long,
+    private val wrOrderNumber: Long,
+    private val wrPricing: Pricing) extends TableRowWithNulls(nullBitMap, WR_RETURNED_DATE_SK)
   with KyuubiTableRowWithNulls {
 
-    override val nullBitMapInternal = nullBitMap
-    override val firstColumnInternal = WR_RETURNED_DATE_SK
+  override val nullBitMapInternal = nullBitMap
+  override val firstColumnInternal = WR_RETURNED_DATE_SK
 
   def getWrReturnedDateSk: Long = wrReturnedDateSk
   def getWrReturnedTimeSk: Long = wrReturnedTimeSk
@@ -67,21 +66,21 @@ class WebReturnsRow(
   def internalRow: InternalRow =
     new GenericInternalRow(
       Array(
-    getLongOrNull(wrReturnedDateSk, WR_RETURNED_DATE_SK),
-    getLongOrNull(wrReturnedTimeSk, WR_RETURNED_TIME_SK),
-    getLongOrNull(wrItemSk, WR_ITEM_SK),
-    getLongOrNull(wrRefundedCustomerSk, WR_REFUNDED_CUSTOMER_SK),
-    getLongOrNull(wrRefundedCdemoSk, WR_REFUNDED_CDEMO_SK),
-    getLongOrNull(wrRefundedHdemoSk, WR_REFUNDED_HDEMO_SK),
-    getLongOrNull(wrRefundedAddrSk, WR_REFUNDED_ADDR_SK),
-    getLongOrNull(wrReturningCustomerSk, WR_RETURNING_CUSTOMER_SK),
-    getLongOrNull(wrReturningCdemoSk, WR_RETURNING_CDEMO_SK),
-    getLongOrNull(wrReturningHdemoSk, WR_RETURNING_HDEMO_SK),
-    getLongOrNull(wrReturningAddrSk, WR_RETURNING_ADDR_SK),
-    getLongOrNull(wrWebPageSk, WR_WEB_PAGE_SK),
-    getLongOrNull(wrReasonSk, WR_REASON_SK),
-    getLongOrNull(wrOrderNumber, WR_ORDER_NUMBER),
-    getIntOrNull(wrPricing.getQuantity(), WR_PRICING_QUANTITY),
+        getLongOrNull(wrReturnedDateSk, WR_RETURNED_DATE_SK),
+        getLongOrNull(wrReturnedTimeSk, WR_RETURNED_TIME_SK),
+        getLongOrNull(wrItemSk, WR_ITEM_SK),
+        getLongOrNull(wrRefundedCustomerSk, WR_REFUNDED_CUSTOMER_SK),
+        getLongOrNull(wrRefundedCdemoSk, WR_REFUNDED_CDEMO_SK),
+        getLongOrNull(wrRefundedHdemoSk, WR_REFUNDED_HDEMO_SK),
+        getLongOrNull(wrRefundedAddrSk, WR_REFUNDED_ADDR_SK),
+        getLongOrNull(wrReturningCustomerSk, WR_RETURNING_CUSTOMER_SK),
+        getLongOrNull(wrReturningCdemoSk, WR_RETURNING_CDEMO_SK),
+        getLongOrNull(wrReturningHdemoSk, WR_RETURNING_HDEMO_SK),
+        getLongOrNull(wrReturningAddrSk, WR_RETURNING_ADDR_SK),
+        getLongOrNull(wrWebPageSk, WR_WEB_PAGE_SK),
+        getLongOrNull(wrReasonSk, WR_REASON_SK),
+        getLongOrNull(wrOrderNumber, WR_ORDER_NUMBER),
+        getIntOrNull(wrPricing.getQuantity(), WR_PRICING_QUANTITY),
         getDecimalOrNull(wrPricing.getNetPaid, WR_PRICING_NET_PAID, 7, 2),
         getDecimalOrNull(wrPricing.getExtTax, WR_PRICING_EXT_TAX, 7, 2),
         getDecimalOrNull(wrPricing.getNetPaidIncludingTax, WR_PRICING_NET_PAID_INC_TAX, 7, 2),

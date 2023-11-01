@@ -17,23 +17,21 @@
 
 package io.trino.tpcds.row
 
-import io.trino.tpcds.generator.IncomeBandGeneratorColumn._
-
 import java.util.{List => JList}
 
-import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
+import io.trino.tpcds.generator.IncomeBandGeneratorColumn._
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
 class IncomeBandRow(
-                     nullBitMap: Long,
-                     private val ibIncomeBandId: Int,
-                     private val ibLowerBound: Int,
-                     private val ibUpperBound: Int
-  ) extends TableRowWithNulls(nullBitMap, IB_INCOME_BAND_ID)
+    nullBitMap: Long,
+    private val ibIncomeBandId: Int,
+    private val ibLowerBound: Int,
+    private val ibUpperBound: Int) extends TableRowWithNulls(nullBitMap, IB_INCOME_BAND_ID)
   with KyuubiTableRowWithNulls {
 
-    override val nullBitMapInternal = nullBitMap
-    override val firstColumnInternal = IB_INCOME_BAND_ID
+  override val nullBitMapInternal = nullBitMap
+  override val firstColumnInternal = IB_INCOME_BAND_ID
 
   def getIbIncomeBandId: Int = ibIncomeBandId
   def getIbLowerBound: Int = ibLowerBound

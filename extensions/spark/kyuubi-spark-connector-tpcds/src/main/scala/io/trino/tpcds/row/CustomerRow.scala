@@ -16,12 +16,11 @@
  */
 package io.trino.tpcds.row
 
-import io.trino.tpcds.generator.CustomerGeneratorColumn._
-
 import java.util.{List => JList}
 
-import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
+import io.trino.tpcds.generator.CustomerGeneratorColumn._
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
 class CustomerRow(
     private val cCustomerSk: Long,

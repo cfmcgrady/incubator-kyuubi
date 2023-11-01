@@ -16,22 +16,21 @@
  */
 package io.trino.tpcds.row
 
-import io.trino.tpcds.generator.ReasonGeneratorColumn._
 import java.util.{List => JList}
 
-import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
+import io.trino.tpcds.generator.ReasonGeneratorColumn._
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
 class ReasonRow(
-                 nullBitMap: Long,
-                 private val rReasonSk: Long,
-                 private val rReasonId: String,
-                 private val rReasonDescription: String
-  ) extends TableRowWithNulls(nullBitMap, R_REASON_SK)
+    nullBitMap: Long,
+    private val rReasonSk: Long,
+    private val rReasonId: String,
+    private val rReasonDescription: String) extends TableRowWithNulls(nullBitMap, R_REASON_SK)
   with KyuubiTableRowWithNulls {
 
-    override val nullBitMapInternal = nullBitMap
-    override val firstColumnInternal = R_REASON_SK
+  override val nullBitMapInternal = nullBitMap
+  override val firstColumnInternal = R_REASON_SK
 
   def getrReasonSk: Long = rReasonSk
   def getrReasonId: String = rReasonId
@@ -42,7 +41,7 @@ class ReasonRow(
   def internalRow: InternalRow =
     new GenericInternalRow(
       Array(
-    getLongOrNull(rReasonSk, R_REASON_SK),
-    getStringOrNullInternal(rReasonId, R_REASON_ID),
-    getStringOrNullInternal(rReasonDescription, R_REASON_DESCRIPTION)))
+        getLongOrNull(rReasonSk, R_REASON_SK),
+        getStringOrNullInternal(rReasonId, R_REASON_ID),
+        getStringOrNullInternal(rReasonDescription, R_REASON_DESCRIPTION)))
 }

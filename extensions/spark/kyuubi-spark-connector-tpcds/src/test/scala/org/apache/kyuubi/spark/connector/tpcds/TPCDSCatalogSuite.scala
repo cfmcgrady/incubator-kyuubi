@@ -168,11 +168,47 @@ class TPCDSCatalogSuite extends KyuubiFunSuite {
       .set("spark.sql.cbo.enabled", "true")
       .set("spark.sql.cbo.planStats.enabled", "true")
     withSparkSession(SparkSession.builder.config(sparkConf).getOrCreate()) { spark =>
-      tableInfo.foreach {
-        case (table, (expectCount, expectChecksum)) =>
-          println(table)
-          spark.table(table).printSchema()
-      }
+//      tableInfo.foreach {
+//        case (table, (expectCount, expectChecksum)) if set.contains(table) =>
+//          println(s"start..$table")
+//          val (count, checksum) = countAndChecksum(spark, table)
+//          assert(count == expectCount)
+//          assert(checksum == expectChecksum, s"table $table")
+//        case _ =>
+//      }
+
+      spark.sql("select hd_vehicle_count from tpcds.tiny.household_demographics where hd_vehicle_count is null").show
+//      spark.table("tpcds.tiny.household_demographics").show
+//      val schema = spark.table("tpcds.tiny.household_demographics").schema.map(_.name)
+//      checksum(spark, "tpcds.tiny.household_demographics", schema).foreach(println)
+    }
+  }
+
+  def checksum(
+      spark: SparkSession,
+      tableName: String,
+      schema: Seq[String]): Seq[(String, String)] = {
+    val df = spark.table(tableName)
+    schema.map {
+      case fieldName if fieldName.endsWith("gmt_offset") => col(fieldName).cast("decimal(5, 2)")
+      case fieldName => col(fieldName)
+    }.map { column =>
+      val expression = concat(
+        when(column.isNull, lit('\u0000').cast("string"))
+          .otherwise(column.cast("string")),
+        lit('\u0001').cast("string"))
+
+      val colCheckSum = df.select(
+        crc32(expression)
+          // 每行的crc32值之和不会超过10^19*10^19=10^38，也就是说不会超过Decimal(38, 0)可表示的范围
+          .cast(DataTypes.createDecimalType(38, 0))
+          .as("row_checksum"))
+        .agg(
+          sum("row_checksum").cast("string").as("checksum"))
+        .collect()
+        .map(r => (r.getString(0)))
+        .head
+      (column.expr.toString, colCheckSum)
     }
   }
 

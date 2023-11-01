@@ -188,7 +188,6 @@
                                 <exclude>io/trino/tpcds/row/CustomerDemographicsRow.class</exclude>
                                 <exclude>io/trino/tpcds/row/CustomerRow.class</exclude>
                                 <exclude>io/trino/tpcds/row/DateDimRow.class</exclude>
-                                <exclude>io/trino/tpcds/row/DbgenVersionRow.class</exclude>
                                 <exclude>io/trino/tpcds/row/HouseholdDemographicsRow.class</exclude>
                                 <exclude>io/trino/tpcds/row/IncomeBandRow.class</exclude>
                                 <exclude>io/trino/tpcds/row/InventoryRow.class</exclude>

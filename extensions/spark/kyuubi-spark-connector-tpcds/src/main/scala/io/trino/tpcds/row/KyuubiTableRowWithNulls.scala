@@ -35,6 +35,10 @@ trait KyuubiTableRowWithNulls { self: TableRowWithNulls =>
   def getLongOrNull(value: Long, column: GeneratorColumn): Any = {
     if (isNullInternal(column) || (value == -1L)) null else value
   }
+//  protected <T> String getStringOrNullForKey(long value, GeneratorColumn column)
+//    {
+//    return (isNull(column) || value == -1) ? null : Long.toString(value);
+//    }
 
   def getLongOrNull(value: Int, column: GeneratorColumn): Any = {
     if (isNullInternal(column) || (value == -1)) null else value.toLong

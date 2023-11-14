@@ -60,8 +60,8 @@ class TPCDSBatchScan(
     (1 to parallelism).map { i => TPCDSTableChunk(table.getName, scale, parallelism, i) }.toArray
 
   def createReaderFactory: PartitionReaderFactory = (partition: InputPartition) => {
-    val chuck = partition.asInstanceOf[TPCDSTableChunk]
-    new TPCDSPartitionReader(chuck.table, chuck.scale, chuck.parallelism, chuck.index, schema)
+    val chunk = partition.asInstanceOf[TPCDSTableChunk]
+    new TPCDSPartitionReader(chunk.table, chunk.scale, chunk.parallelism, chunk.index)
   }
 
   override def estimateStatistics: Statistics = new Statistics {
@@ -74,10 +74,9 @@ class TPCDSPartitionReader(
     table: String,
     scale: Double,
     parallelism: Int,
-    index: Int,
-    schema: StructType) extends PartitionReader[InternalRow] {
+    index: Int) extends PartitionReader[InternalRow] {
 
-  private val chuckInfo: Session = {
+  private val chunkInfo: Session = {
     val opt = new Options
     opt.table = table
     opt.scale = scale
@@ -86,7 +85,7 @@ class TPCDSPartitionReader(
   }
 
   private val iterator = KyuubiTPCDSResults
-    .constructResults(chuckInfo.getOnlyTableToGenerate, chuckInfo, schema)
+    .constructResults(chunkInfo.getOnlyTableToGenerate, chunkInfo)
     .iterator
 
   private var currentRow: InternalRow = _

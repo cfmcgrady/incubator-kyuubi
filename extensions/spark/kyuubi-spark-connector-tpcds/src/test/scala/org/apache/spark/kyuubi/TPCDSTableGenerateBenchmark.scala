@@ -76,8 +76,7 @@ class TPCDSTableGenerateBenchmark extends KyuubiFunSuite with KyuubiBenchmarkBas
       tableName,
       scale,
       1,
-      1,
-      table.schema)
+      1)
     var count = 0
     while (reader.next() && count < rowCount) {
       count += 1

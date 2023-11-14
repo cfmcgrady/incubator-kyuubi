@@ -161,13 +161,21 @@ class TPCDSCatalogSuite extends KyuubiFunSuite {
 
   test("aa") {
     val sparkConf = new SparkConf()
-      .setMaster("local[*]")
-      .set("spark.ui.enabled", "false")
+      .setMaster("local[2]")
+      .set("spark.ui.enabled", "true")
       .set("spark.sql.catalogImplementation", "in-memory")
       .set("spark.sql.catalog.tpcds", classOf[TPCDSCatalog].getName)
       .set("spark.sql.cbo.enabled", "true")
       .set("spark.sql.cbo.planStats.enabled", "true")
     withSparkSession(SparkSession.builder.config(sparkConf).getOrCreate()) { spark =>
+      // 28795080
+      // 28795080
+      // 2879537707
+      // 2879668969
+      // 2879668969
+      // 2879441083
+      // 2879970104
+      println(spark.table("tpcds.sf10000.store_returns").count())
 //      tableInfo.foreach {
 //        case (table, (expectCount, expectChecksum)) if set.contains(table) =>
 //          println(s"start..$table")
@@ -177,7 +185,7 @@ class TPCDSCatalogSuite extends KyuubiFunSuite {
 //        case _ =>
 //      }
 
-      spark.sql("select cc_closed_date_sk, cc_gmt_offset from tpcds.tiny.call_center").show
+//      spark.sql("select cc_closed_date_sk, cc_gmt_offset from tpcds.tiny.call_center").show
 
 //      spark.sql(
 //        """
@@ -189,37 +197,42 @@ class TPCDSCatalogSuite extends KyuubiFunSuite {
 //          |""".stripMargin
 //      ).show
 //      spark.table("tpcds.tiny.household_demographics").show
-//      val schema = spark.table("tpcds.tiny.call_center").schema.map(_.name)
-//      checksum(spark, "tpcds.tiny.call_center", schema).foreach(println)
+//      val schema = spark.table("tpcds.sf1000.catalog_returns").schema.map(_.name)
+//      checksum(spark, "tpcds.sf1000.catalog_returns", schema).foreach(println)
+//      checksum(spark, "tpcds.tiny.catalog_returns")
     }
   }
 
-  def checksum(
+  def columnChecksum(
       spark: SparkSession,
-      tableName: String,
-      schema: Seq[String]): Seq[(String, String)] = {
+      tableName: String): Unit = {
     val df = spark.table(tableName)
-    schema.map {
-      case fieldName if fieldName.endsWith("gmt_offset") => col(fieldName).cast("decimal(5, 2)")
-      case fieldName => col(fieldName)
-    }.map { column =>
-      val expression = concat(
-        when(column.isNull, lit('\u0000').cast("string"))
-          .otherwise(column.cast("string")),
-        lit('\u0001').cast("string"))
+    val schema = df.schema.map(_.name)
 
-      val colCheckSum = df.select(
-        crc32(expression)
-          // 每行的crc32值之和不会超过10^19*10^19=10^38，也就是说不会超过Decimal(38, 0)可表示的范围
-          .cast(DataTypes.createDecimalType(38, 0))
-          .as("row_checksum"))
-        .agg(
-          sum("row_checksum").cast("string").as("checksum"))
-        .collect()
-        .map(r => (r.getString(0)))
-        .head
-      (column.expr.toString, colCheckSum)
+    val cols = schema.map { fieldName =>
+      crc32(
+        concat(
+          when(col(fieldName).isNull, lit('\u0000').cast("string"))
+            .otherwise(col(fieldName).cast("string")),
+          lit('\u0001').cast("string")))
+        .cast(DataTypes.createDecimalType(38, 0))
+        .as(s"checksum_$fieldName")
     }
+    val aggs = schema.map { fieldName =>
+      sum(s"checksum_$fieldName").cast("string").as(s"checksum_$fieldName")
+    }
+
+    val a1 = aggs.head
+    val a2 = aggs.slice(1, aggs.size)
+
+    df.select(cols: _*)
+      .agg(a1, a2: _*)
+      .collect()
+      .foreach { row =>
+        schema.map(n => s"checksum_$n").foreach { n =>
+          println(n.toString + ", " + row.getAs[String](n))
+        }
+      }
   }
 
   test("bb") {
@@ -234,6 +247,55 @@ class TPCDSCatalogSuite extends KyuubiFunSuite {
       spark.table("tpcds.tiny.web_page").show(1)
 //      spark.sql("select cs_sold_date_sk from tpcds.tiny.catalog_sales").show(1)
     }
+  }
+
+  test("xxx") {
+
+    val table = io.trino.tpcds.Table.STORE_RETURNS
+    val opt = new io.trino.tpcds.Options
+    opt.table = "store_returns"
+    opt.scale = 10000
+//    opt.parallelism = 958 // 100
+    opt.parallelism = 12345
+    val session = opt.toSession.withChunkNumber(10000)
+
+    val chunkBoundaries = io.trino.tpcds.Parallel.splitWork(table, session)
+    println(session.getScaling.getRowCount(table))
+    println(chunkBoundaries.getFirstRow)
+    println(chunkBoundaries.getLastRow)
+
+    println("---------")
+    println(session.getScaling.getRowCount(table))
+    println(session.getScaling.getRowCount(table) % opt.parallelism)
+    println(session.getScaling.getRowCount(table) / opt.parallelism)
+
+    val it = KyuubiTPCDSResults.constructResults(table, session).iterator
+    var i = 0
+    while (it.hasNext) {
+      i += 1
+      it.next()
+    }
+    println(i)
+  }
+
+  test("xyz") {
+    val classLoader = ClassLoader.getSystemClassLoader()
+    val urls = classLoader.asInstanceOf[java.net.URLClassLoader].getURLs
+      .foreach(r => println(r))
+
+    def jarFile[T](clz: Class[T]): String = {
+      val url = clz.getProtectionDomain().getCodeSource().getLocation()
+      java.nio.file.Paths.get(url.toURI()).toString()
+    }
+
+    import scala.concurrent.{Future, blocking}
+    import scala.concurrent.ExecutionContext.Implicits.global
+    val f = Future {
+      blocking {
+
+      }
+    }
+    Either
   }
 
   import org.apache.spark.sql.SparkSession

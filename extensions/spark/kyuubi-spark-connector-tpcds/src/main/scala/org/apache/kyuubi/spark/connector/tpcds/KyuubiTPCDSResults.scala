@@ -17,43 +17,37 @@
 
 package org.apache.kyuubi.spark.connector.tpcds
 
-import java.lang.{Iterable => JIterable, Long => JLong}
+import java.lang.{Iterable => JIterable}
 import java.lang.reflect.InvocationTargetException
 import java.util.{Iterator => JIterator}
 
 import com.google.common.collect.AbstractIterator
 import io.trino.tpcds._
-import io.trino.tpcds.`type`.{Decimal => TPCDSDecimal}
 import io.trino.tpcds.row.KyuubiTableRowWithNulls
 import io.trino.tpcds.row.generator.RowGenerator
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
-import org.apache.spark.sql.catalyst.util.{DateTimeUtils, RebaseDateTime}
-import org.apache.spark.sql.types.{CharType, DateType, Decimal, DecimalType, IntegerType, LongType, StringType, StructType, VarcharType}
 import org.apache.spark.unsafe.types.UTF8String
-
-import org.apache.kyuubi.spark.connector.tpcds.KyuubiResultsIterator.{FALSE_STRING, TRUE_STRING}
 
 class KyuubiTPCDSResults(
     val table: Table,
     val startingRowNumber: Long,
     val rowCount: Long,
-    val session: Session,
-    val schema: StructType) extends JIterable[InternalRow] {
+    val session: Session) extends JIterable[InternalRow] {
 
   override def iterator: JIterator[InternalRow] =
-    new KyuubiResultsIterator(table, startingRowNumber, rowCount, session, schema)
+    new KyuubiResultsIterator(table, startingRowNumber, rowCount, session)
 }
 
 object KyuubiTPCDSResults {
-  def constructResults(table: Table, session: Session, schema: StructType): KyuubiTPCDSResults = {
+  def constructResults(table: Table, session: Session): KyuubiTPCDSResults = {
+    val result = session.getScaling.getRowCount(table)
+    println(s"table: $table, row count: $result")
     val chunkBoundaries = io.trino.tpcds.Parallel.splitWork(table, session)
     new KyuubiTPCDSResults(
       table,
       chunkBoundaries.getFirstRow(),
       chunkBoundaries.getLastRow(),
-      session,
-      schema)
+      session)
   }
 }
 
@@ -61,8 +55,7 @@ class KyuubiResultsIterator(
     val table: Table,
     val startingRowNumber: Long,
     val endingRowNumber: Long,
-    val session: Session,
-    val sparkSchema: StructType) extends AbstractIterator[InternalRow] {
+    val session: Session) extends AbstractIterator[InternalRow] {
   private var rowNumber: Long = 0L
   private var rowGenerator: RowGenerator = _
   private var parentRowGenerator: Option[RowGenerator] = None
@@ -129,38 +122,6 @@ class KyuubiResultsIterator(
     rowGenerator.consumeRemainingSeedsForRow()
     parentRowGenerator.foreach(_.consumeRemainingSeedsForRow())
     childRowGenerator.foreach(_.consumeRemainingSeedsForRow())
-  }
-
-  private val reusedRow = new Array[Any](sparkSchema.length)
-
-  def toInternalRow(values: Array[Any]): InternalRow = {
-    var i = 0
-    while (i < values.length) {
-      reusedRow(i) = (values(i), sparkSchema(i).dataType) match {
-        case (None | null, _) => null
-        case (Some(Options.DEFAULT_NULL_STRING), _) => null
-        case (Some(v: Boolean), _) => if (v) TRUE_STRING else FALSE_STRING
-        case (Some(v: Integer), IntegerType) => v
-        case (Some(v: JLong), IntegerType) => v.toInt
-        case (Some(v: Integer), LongType) => v.toLong
-        case (Some(v: JLong), LongType) => v
-        case (Some(v: JLong), DateType) =>
-          RebaseDateTime.rebaseJulianToGregorianDays(v.toInt) - DateTimeUtils.JULIAN_DAY_OF_EPOCH
-        case (Some(v), StringType) => UTF8String.fromString(v.toString)
-        case (Some(v), CharType(_)) => UTF8String.fromString(v.toString)
-        case (Some(v), VarcharType(_)) => UTF8String.fromString(v.toString)
-        case (Some(v: TPCDSDecimal), t: DecimalType) =>
-          Decimal(v.getNumber, t.precision, t.scale)
-        case (Some(v: Integer), t: DecimalType) =>
-          val decimal = Decimal(v)
-          decimal.changePrecision(t.precision, t.scale)
-          decimal
-        case (Some(v), dt) => throw new IllegalArgumentException(
-            s"value: $v, value class: ${v.getClass.getName} type: $dt")
-      }
-      i += 1
-    }
-    new GenericInternalRow(reusedRow)
   }
 }
 

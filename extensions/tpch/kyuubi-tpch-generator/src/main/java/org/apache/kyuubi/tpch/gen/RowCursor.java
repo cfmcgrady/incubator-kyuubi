@@ -35,4 +35,18 @@ public interface RowCursor {
 
   /** Native text representation, including fixed two-place monetary values. */
   String getString(int column);
+
+  /**
+   * UTF-8 backing storage for a VARCHAR column. The returned array is read-only and may be shared
+   * with other cursors. Only the slice given by getByteOffset/getByteLength is part of the value;
+   * consume or copy it before the next next() call. No per-value array or slice object is
+   * allocated.
+   */
+  byte[] getBytes(int column);
+
+  /** Offset into getBytes(column); valid only for VARCHAR columns on the current row. */
+  int getByteOffset(int column);
+
+  /** Length in bytes; valid only for VARCHAR columns on the current row. */
+  int getByteLength(int column);
 }

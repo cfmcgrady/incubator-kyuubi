@@ -19,8 +19,6 @@ package org.apache.kyuubi.tpch.gen;
 
 import static org.apache.kyuubi.tpch.gen.StreamIds.*;
 
-import java.nio.charset.StandardCharsets;
-
 /** Lazily initialized, immutable 300 MiB reference text pool shared by all cursors in a JVM. */
 final class TextPool {
   static final int SIZE = 300 * 1024 * 1024;
@@ -29,11 +27,11 @@ final class TextPool {
     static final byte[] BYTES = build();
   }
 
-  static String comment(RandomStreams random, int stream, int average) {
+  static void comment(RandomStreams random, int stream, int average, TextValue target) {
     int min = (int) (average * 0.4), max = (int) (average * 1.6);
     int offset = (int) random.uniform(stream, 0, SIZE - max);
     int length = (int) random.uniform(stream, min, max);
-    return new String(Holder.BYTES, offset, length, StandardCharsets.US_ASCII);
+    target.set(Holder.BYTES, offset, length);
   }
 
   private static byte[] build() {

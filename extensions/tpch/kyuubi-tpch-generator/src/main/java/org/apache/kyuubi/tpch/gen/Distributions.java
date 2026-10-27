@@ -34,10 +34,13 @@ import java.util.Map;
 final class Distributions {
   private static final Map<String, Distributions> ALL = load();
   final String[] words;
+  final byte[][] bytes;
   private final int[] cumulative;
 
   private Distributions(List<String> words, List<Integer> weights) {
     this.words = words.toArray(new String[0]);
+    bytes =
+        words.stream().map(word -> word.getBytes(StandardCharsets.US_ASCII)).toArray(byte[][]::new);
     cumulative = new int[weights.size()];
     int sum = 0;
     for (int i = 0; i < weights.size(); i++) {
@@ -57,6 +60,14 @@ final class Distributions {
   }
 
   String pick(RandomStreams random, int stream) {
+    return words[pickIndex(random, stream)];
+  }
+
+  byte[] pickBytes(RandomStreams random, int stream) {
+    return bytes[pickIndex(random, stream)];
+  }
+
+  private int pickIndex(RandomStreams random, int stream) {
     int value = (int) random.uniform(stream, 1, cumulative[cumulative.length - 1]);
     int lo = 0, hi = cumulative.length - 1;
     while (lo < hi) {
@@ -64,7 +75,7 @@ final class Distributions {
       if (cumulative[mid] >= value) hi = mid;
       else lo = mid + 1;
     }
-    return words[lo];
+    return lo;
   }
 
   private static Map<String, Distributions> load() {

@@ -67,6 +67,19 @@ class TpchGeneratorTest {
       while ((expected = input.readLine()) != null) {
         assertTrue(actual.next(), "Early end at row " + count);
         assertEquals(expected, line(actual), "Row " + count++);
+        String[] columns = expected.split("\\|", -1);
+        for (int i = 0; i < table.columnCount(); i++) {
+          if (table.column(i).getKind() == TpchTable.Kind.VARCHAR) {
+            assertEquals(
+                columns[i],
+                new String(
+                    actual.getBytes(i),
+                    actual.getByteOffset(i),
+                    actual.getByteLength(i),
+                    StandardCharsets.UTF_8),
+                "UTF-8 column " + i);
+          }
+        }
       }
     }
     assertEquals(Long.parseLong(fields[4]), count);
@@ -95,6 +108,9 @@ class TpchGeneratorTest {
       RowCursor empty = TpchGenerator.partition(table, 0, 2, 2);
       assertFalse(empty.next());
       assertThrows(IllegalStateException.class, () -> empty.getLong(0));
+      assertThrows(IllegalStateException.class, () -> empty.getBytes(1));
+      assertThrows(IllegalStateException.class, () -> empty.getByteOffset(1));
+      assertThrows(IllegalStateException.class, () -> empty.getByteLength(1));
       long total = table.parentRows(1);
       assertThrows(
           IllegalArgumentException.class,
@@ -108,6 +124,25 @@ class TpchGeneratorTest {
         new double[] {-1, Double.NaN, Double.POSITIVE_INFINITY, 100001, 1.5, 0.0001})
       assertThrows(IllegalArgumentException.class, () -> TpchTable.CUSTOMER.parentRows(scale));
     assertThrows(IllegalArgumentException.class, () -> new RowRange(-1, 0));
+  }
+
+  @Test
+  void supplierCommentEditsDoNotMutateSharedText() {
+    byte[] pool = "before Customer after Complaints untouched".getBytes(StandardCharsets.US_ASCII);
+    byte[] original = pool.clone();
+    TextValue comment = new TextValue(pool.length);
+    comment.set(pool, 7, 25);
+    comment.replace(0, "Customer ".getBytes(StandardCharsets.US_ASCII));
+    comment.replace(15, "Recommends".getBytes(StandardCharsets.US_ASCII));
+    assertArrayEquals(original, pool);
+    assertEquals(
+        "Customer after Recommends",
+        new String(comment.bytes, comment.offset, comment.length, StandardCharsets.US_ASCII));
+    // The same cursor can alternate between a shared slice and a privately edited comment.
+    comment.set(pool, 0, pool.length);
+    comment.replace(0, "AFTER!".getBytes(StandardCharsets.US_ASCII));
+    assertArrayEquals(original, pool);
+    assertEquals((byte) 'A', comment.bytes[0]);
   }
 
   @Test

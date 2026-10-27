@@ -39,7 +39,18 @@ public class NativeComparison {
           var actual = new StringBuilder();
           for (int i = 0; i < rows.columnCount(); i++) {
             if (i > 0) actual.append('|');
-            actual.append(rows.getString(i));
+            String value = rows.getString(i);
+            if (t.column(i).getKind() == TpchTable.Kind.VARCHAR) {
+              String bytes =
+                  new String(
+                      rows.getBytes(i),
+                      rows.getByteOffset(i),
+                      rows.getByteLength(i),
+                      StandardCharsets.UTF_8);
+              if (!value.equals(bytes))
+                throw new AssertionError(line + " row=" + count + " UTF-8 column=" + i);
+            }
+            actual.append(value);
           }
           if (!want.contentEquals(actual))
             throw new AssertionError(

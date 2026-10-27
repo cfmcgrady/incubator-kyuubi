@@ -33,7 +33,7 @@ class TPCHCoreGenerateBenchmark extends KyuubiFunSuite {
   TpchTable.values().foreach { table =>
     test(s"${table.getTableName} generation") {
       assume(sys.env.contains("RUN_BENCHMARK"))
-      val count = math.min(100000L, table.parentRows(scale)).toInt
+      val count = math.min(1000000L, table.parentRows(scale)).toInt
       val schema = StructType(table.getColumns.map { column =>
         val dataType = column.getKind match {
           case TpchTable.Kind.INTEGER => IntegerType
@@ -60,8 +60,11 @@ class TPCHCoreGenerateBenchmark extends KyuubiFunSuite {
         checksum
       }
       val expected = run()
+      (1 to 3).foreach { _ => assert(run() == expected) }
       val benchmark = new Benchmark(s"${table.getTableName} SF$scale", count, minTime = 1.second)
-      benchmark.addCase("Independent core + UnsafeRow", 3) { _ => assert(run() == expected) }
+      benchmark.addCase("Independent core + UTF-8 UnsafeRow", 7) { _ =>
+        assert(run() == expected)
+      }
       benchmark.run()
     }
   }

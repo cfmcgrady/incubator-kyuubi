@@ -26,7 +26,6 @@ import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.codegen.UnsafeRowWriter
 import org.apache.spark.sql.connector.read._
 import org.apache.spark.sql.types._
-import org.apache.spark.unsafe.types.UTF8String
 
 import org.apache.kyuubi.tpch.gen.{TpchGenerator, TpchTable}
 
@@ -91,23 +90,53 @@ class TPCHPartitionReader(
 
   private val cursor = TpchGenerator.partition(TpchTable.getTable(table), scale, parallelism, index)
   private val writer = new UnsafeRowWriter(cursor.columnCount())
-  private val types = schema.fields.map(_.dataType)
+  // Resolve the schema once. Each loop has one primitive write operation instead of a
+  // data-type match for every value; string ordinals retain their original order.
+  private val columnsByType = schema.fields.zipWithIndex.groupBy { case (field, _) =>
+    field.dataType match {
+      case LongType => LongType
+      case IntegerType | DateType => IntegerType
+      case DoubleType => DoubleType
+      case StringType | _: CharType | _: VarcharType => StringType
+      case unsupported =>
+        throw new IllegalArgumentException(s"Unsupported TPC-H type: $unsupported")
+    }
+  }.map { case (dataType, columns) => dataType -> columns.map(_._2) }
+  private val longColumns = columnsByType.getOrElse(LongType, Array.emptyIntArray)
+  private val integerColumns = columnsByType.getOrElse(IntegerType, Array.emptyIntArray)
+  private val doubleColumns = columnsByType.getOrElse(DoubleType, Array.emptyIntArray)
+  private val stringColumns = columnsByType.getOrElse(StringType, Array.emptyIntArray)
 
   override def next(): Boolean = {
     if (!cursor.next()) return false
     writer.reset()
     writer.zeroOutNullBytes()
     var i = 0
-    while (i < cursor.columnCount()) {
-      types(i) match {
-        case LongType => writer.write(i, cursor.getLong(i))
-        case IntegerType | DateType => writer.write(i, Math.toIntExact(cursor.getLong(i)))
-        case DoubleType => writer.write(i, cursor.getDouble(i))
-        case StringType | _: CharType | _: VarcharType =>
-          writer.write(i, UTF8String.fromString(cursor.getString(i)))
-        case unsupported =>
-          throw new IllegalArgumentException(s"Unsupported TPC-H type: $unsupported")
-      }
+    while (i < longColumns.length) {
+      val column = longColumns(i)
+      writer.write(column, cursor.getLong(column))
+      i += 1
+    }
+    i = 0
+    while (i < integerColumns.length) {
+      val column = integerColumns(i)
+      writer.write(column, Math.toIntExact(cursor.getLong(column)))
+      i += 1
+    }
+    i = 0
+    while (i < doubleColumns.length) {
+      val column = doubleColumns(i)
+      writer.write(column, cursor.getDouble(column))
+      i += 1
+    }
+    i = 0
+    while (i < stringColumns.length) {
+      val column = stringColumns(i)
+      writer.write(
+        column,
+        cursor.getBytes(column),
+        cursor.getByteOffset(column),
+        cursor.getByteLength(column))
       i += 1
     }
     true

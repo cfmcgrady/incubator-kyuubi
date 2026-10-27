@@ -44,6 +44,16 @@ converts directly to DOUBLE and writes `UnsafeRow` without intermediate strings.
 Dates are epoch days. Current values are valid after `next()` returns true and
 until the following `next()` call; callers retaining a Spark row must copy it.
 
+VARCHAR values are generated directly as ASCII (valid UTF-8). `getBytes`,
+`getByteOffset` and `getByteLength` expose a read-only slice valid for the current
+row. Dictionaries are encoded once, comments refer to the shared text pool,
+and names, addresses and phone numbers use cursor-owned reusable buffers.
+Supplier comment markers are applied to a private copy. Consumers must not
+modify backing arrays or retain slices across `next()`. `getString` remains
+available for native text output and decodes VARCHAR values on demand.
+The Spark reader copies these slices directly into its reusable `UnsafeRow`,
+avoiding per-value String and UTF8String allocation and encoding.
+
 The reference's immutable **300 MiB text pool** is initialized lazily once per
 JVM and shared by all cursors. Its startup time and heap footprint still apply.
 Empty scans do not initialize it. Part names calculate the five observed
@@ -81,7 +91,8 @@ beyond 32-bit keys and random periods. The manifest and 128 compressed golden
 files make the bounded comparisons and full tiny comparisons repeatable offline.
 
 Tests also compare concatenated partitions with full native tiny data, check
-range exhaustion and invalid inputs, verify random seeking against a BigInteger
+range exhaustion and invalid inputs, compare UTF-8 slices with native fields,
+verify random seeking against a BigInteger
 oracle, and check interleaved cursors and Spark typed conversion. All 22 existing
 TPC-H query results on tiny are checked against their existing golden results.
 

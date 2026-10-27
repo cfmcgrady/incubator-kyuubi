@@ -1,0 +1,9 @@
+TPC-H benchmark dictionary data
+
+The unmodified dists.dss resource is retained from io.trino.tpch:tpch:1.1
+(https://github.com/trinodb/tpch), published under Apache License 2.0.
+The original resource is io/trino/tpch/dists.dss. It contains the standard
+TPC-H benchmark dictionaries; its original notices are preserved.
+SHA-256: e3ac68b43b83e4c896b0f90f52ba3f229eab2949bb85403bc810c0197cb30e56
+
+The generator does not include Trino implementation classes or native code.

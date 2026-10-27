@@ -17,30 +17,24 @@
 
 package org.apache.kyuubi.spark.connector.tpch
 
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util
+import java.math.RoundingMode
 import java.util.OptionalLong
 
-import scala.collection.mutable.ArrayBuffer
-import scala.language.existentials
-
-import io.trino.tpch._
-import io.trino.tpch.GenerateUtils.formatDate
-import io.trino.tpch.TpchColumnType.Base._
+import com.google.common.math.LongMath
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.codegen.UnsafeRowWriter
 import org.apache.spark.sql.connector.read._
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 
-import org.apache.kyuubi.spark.connector.tpch.TPCHSchemaUtils.normalize
+import org.apache.kyuubi.tpch.gen.{TpchGenerator, TpchTable}
 
 case class TPCHTableChuck(table: String, scale: Double, parallelism: Int, index: Int)
   extends InputPartition
 
 class TPCHBatchScan(
-    @transient table: TpchTable[_],
+    @transient table: TpchTable,
     scale: Double,
     schema: StructType,
     readConf: TPCHReadConf) extends ScanBuilder
@@ -50,11 +44,16 @@ class TPCHBatchScan(
 
   private val _numRows: Long = TPCHStatisticsUtils.numRows(table, scale)
 
+  require(readConf.maxPartitionBytes > 0, "maxPartitionBytes must be positive")
+
   private val parallelism: Int =
     if (table.equals(TpchTable.NATION) || table.equals(TpchTable.REGION)) 1
     else math.max(
       SparkSession.active.sparkContext.defaultParallelism,
-      (_numRows / readConf.maxPartitionBytes).ceil.toInt)
+      Math.toIntExact(LongMath.divide(
+        _sizeInBytes,
+        readConf.maxPartitionBytes,
+        RoundingMode.CEILING)))
 
   override def build: Scan = this
 
@@ -90,67 +89,31 @@ class TPCHPartitionReader(
     index: Int,
     schema: StructType) extends PartitionReader[InternalRow] {
 
-  private val tpchTable = TpchTable.getTable(table)
-
-  private val columns = tpchTable.getColumns
-    .asInstanceOf[java.util.List[TpchColumn[TpchEntity]]]
-
-  private lazy val dateFmt: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-
-  private val iterator = {
-    if (normalize(scale).equals("0")) {
-      new util.Iterator[TpchEntity] {
-
-        override def hasNext: Boolean = false
-
-        override def next(): TpchEntity = throw new NoSuchElementException("next on empty iterator")
-      }
-    } else tpchTable.createGenerator(scale, index, parallelism).iterator
-  }
-
-  private var currentRow: InternalRow = _
+  private val cursor = TpchGenerator.partition(TpchTable.getTable(table), scale, parallelism, index)
+  private val writer = new UnsafeRowWriter(cursor.columnCount())
+  private val types = schema.fields.map(_.dataType)
 
   override def next(): Boolean = {
-    val hasNext = iterator.hasNext
-    if (hasNext) currentRow = {
-      val row = iterator.next().asInstanceOf[TpchEntity]
-      val rowValue = new ArrayBuffer[String]()
-      columns.stream().forEach(column => {
-        val baseType = column.getType.getBase
-        var value: String = ""
-        baseType match {
-          case IDENTIFIER => value += column.getIdentifier(row)
-          case INTEGER => value += column.getInteger(row)
-          case DATE => value += column.getDate(row)
-          case DOUBLE => value += column.getDouble(row)
-          case VARCHAR => value += column.getString(row)
-        }
-        rowValue += value
-      })
-      val rowAny = new ArrayBuffer[Any]()
-      rowValue.zipWithIndex.map { case (value, i) =>
-        (value, schema(i).dataType) match {
-          case (null, _) => null
-          case ("", _) => null
-          case (value, IntegerType) => rowAny += value.toInt
-          case (value, LongType) => rowAny += value.toLong
-          case (value, DoubleType) => rowAny += value.toDouble
-          case (value, DateType) =>
-            rowAny += LocalDate.parse(formatDate(value.toInt), dateFmt).toEpochDay.toInt
-          case (value, StringType) => rowAny += UTF8String.fromString(value)
-          case (value, _: CharType) => rowAny += UTF8String.fromString(value)
-          case (value, _: VarcharType) => rowAny += UTF8String.fromString(value)
-          case (value, DecimalType()) => rowAny += Decimal(value)
-          case (value, dt) => throw new IllegalArgumentException(s"value: $value, type: $dt")
-        }
+    if (!cursor.next()) return false
+    writer.reset()
+    writer.zeroOutNullBytes()
+    var i = 0
+    while (i < cursor.columnCount()) {
+      types(i) match {
+        case LongType => writer.write(i, cursor.getLong(i))
+        case IntegerType | DateType => writer.write(i, Math.toIntExact(cursor.getLong(i)))
+        case DoubleType => writer.write(i, cursor.getDouble(i))
+        case StringType | _: CharType | _: VarcharType =>
+          writer.write(i, UTF8String.fromString(cursor.getString(i)))
+        case unsupported =>
+          throw new IllegalArgumentException(s"Unsupported TPC-H type: $unsupported")
       }
-      InternalRow.fromSeq(rowAny.toSeq)
+      i += 1
     }
-    hasNext
+    true
   }
 
-  override def get(): InternalRow = currentRow
+  override def get(): InternalRow = writer.getRow
 
   override def close(): Unit = {}
-
 }

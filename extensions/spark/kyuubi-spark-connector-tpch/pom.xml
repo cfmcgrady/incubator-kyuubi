@@ -64,8 +64,9 @@
         </dependency>
 
         <dependency>
-            <groupId>io.trino.tpch</groupId>
-            <artifactId>tpch</artifactId>
+            <groupId>org.apache.kyuubi</groupId>
+            <artifactId>kyuubi-tpch-generator</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -159,7 +160,6 @@
                     <shadedArtifactAttached>false</shadedArtifactAttached>
                     <artifactSet>
                         <includes>
-                            <include>io.trino.tpch:tpch</include>
                             <include>com.google.guava:guava</include>
                             <include>org.apache.kyuubi:*</include>
                         </includes>
@@ -170,13 +170,6 @@
                             <shadedPattern>${kyuubi.shade.packageName}.com.google.common</shadedPattern>
                             <includes>
                                 <include>com.google.common.**</include>
-                            </includes>
-                        </relocation>
-                        <relocation>
-                            <pattern>io.trino.tpch</pattern>
-                            <shadedPattern>${kyuubi.shade.packageName}.io.trino.tpch</shadedPattern>
-                            <includes>
-                                <include>io.trino.tpch.**</include>
                             </includes>
                         </relocation>
                     </relocations>

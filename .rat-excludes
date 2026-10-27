@@ -56,3 +56,6 @@ build/scala-*/**
 **/BeeLine.properties
 **/sql-keywords.properties
 **/python/**
+
+# Unmodified benchmark dictionary; provenance is retained by the generator module.
+**/kyuubi-tpch-generator/src/main/resources/org/apache/kyuubi/tpch/gen/dists.dss

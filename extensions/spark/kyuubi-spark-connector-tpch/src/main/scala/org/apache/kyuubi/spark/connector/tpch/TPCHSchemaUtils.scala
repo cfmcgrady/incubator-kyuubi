@@ -19,9 +19,7 @@ package org.apache.kyuubi.spark.connector.tpch
 
 import java.text.DecimalFormat
 
-import scala.collection.JavaConverters._
-
-import io.trino.tpch.TpchTable
+import org.apache.kyuubi.tpch.gen.TpchTable
 
 object TPCHSchemaUtils {
 
@@ -55,6 +53,6 @@ object TPCHSchemaUtils {
 
   def dbName(scale: Double): String = DATABASES(SCALES.indexOf(normalize(scale)))
 
-  val BASE_TABLES: Array[TpchTable[_]] = TpchTable.getTables.asScala.toArray
+  val BASE_TABLES: Array[TpchTable] = TpchTable.values()
 
 }

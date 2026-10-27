@@ -17,16 +17,15 @@
 
 package org.apache.kyuubi.spark.connector.tpch
 
-import io.trino.tpch.TpchTable
-import io.trino.tpch.TpchTable._
-
 import org.apache.kyuubi.spark.connector.tpch.TPCHSchemaUtils.{normalize, SCALES}
+import org.apache.kyuubi.tpch.gen.TpchTable
+import org.apache.kyuubi.tpch.gen.TpchTable._
 
 // https://www.tpc.org/tpc_documents_current_versions/pdf/tpc-h_v3.0.1.pdf
 // Page 88 Table 3: Estimated Database Size
 object TPCHStatisticsUtils {
 
-  def numRows(table: TpchTable[_], scale: Double): Long = {
+  def numRows(table: TpchTable, scale: Double): Long = {
     val nScale = normalize(scale)
     require(SCALES.contains(nScale), s"Unsupported scale $nScale")
     (table, nScale) match {
@@ -44,6 +43,8 @@ object TPCHStatisticsUtils {
       case (LINE_ITEM, "10000") => 59999994267L
       case (LINE_ITEM, "30000") => 179999978268L
       case (LINE_ITEM, "100000") => 599999969200L
+      case (LINE_ITEM, unsupported) =>
+        throw new IllegalArgumentException(s"Unsupported lineitem scale: $unsupported")
       case (PART, nScale) => (200000L * nScale.toDouble).toLong
       case (PART_SUPPLIER, nScale) => (800000L * nScale.toDouble).toLong
       case (SUPPLIER, nScale) => (10000L * nScale.toDouble).toLong
@@ -52,10 +53,10 @@ object TPCHStatisticsUtils {
     }
   }
 
-  def sizeInBytes(table: TpchTable[_], scale: Double): Long =
+  def sizeInBytes(table: TpchTable, scale: Double): Long =
     numRows(table, scale) * TABLE_AVG_ROW_BYTES(table)
 
-  private val TABLE_AVG_ROW_BYTES: Map[TpchTable[_], Long] = Map(
+  private val TABLE_AVG_ROW_BYTES: Map[TpchTable, Long] = Map(
     CUSTOMER -> 179,
     ORDERS -> 104,
     LINE_ITEM -> 112,

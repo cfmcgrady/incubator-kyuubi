@@ -717,6 +717,8 @@ public enum TpcdsTable {
   final long[] sizes;
   final int[] budgets;
   private final Column[] columns;
+  private final long[] outputNullMasks = new long[Long.SIZE];
+  final long sentinelColumns;
 
   TpcdsTable(
       int firstColumn,
@@ -740,11 +742,23 @@ public enum TpcdsTable {
     this.budgets = budgets;
     String[] fields = schema.split(";");
     columns = new Column[fields.length];
+    long sentinels = 0;
     for (int i = 0; i < fields.length; i++) {
       String[] parts = fields[i].split(":");
       columns[i] =
           new Column(parts[0], parts[1], Integer.parseInt(parts[2]), parts[3], requiredBits);
+      outputNullMasks[columns[i].nullBit] |= 1L << i;
+      if (parts[3].equals("key") || parts[3].equals("date")) sentinels |= 1L << i;
     }
+    sentinelColumns = sentinels;
+  }
+
+  long outputNulls(long bitmap) {
+    long result = 0;
+    for (; bitmap != 0; bitmap &= bitmap - 1) {
+      result |= outputNullMasks[Long.numberOfTrailingZeros(bitmap)];
+    }
+    return result;
   }
 
   public String getName() {

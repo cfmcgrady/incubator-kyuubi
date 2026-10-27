@@ -40,8 +40,24 @@ Each cursor owns its mutable state. Immutable distribution data are cached and
 shared. Current values are valid after `next()` returns true and until the next
 call to `next()`. Keys and integers use primitive `long` values, decimals use
 unscaled cents, dates use Julian days, and nulls are stored separately. The Spark
-adapter writes directly to a reusable `UnsafeRow`; the dev adapter returns an
-independent text row. No per-row reflection is used.
+adapter writes directly to a reusable `UnsafeRow`; the dev writer receives
+independent, typed rows. No per-row reflection is used.
+
+CHAR/VARCHAR columns also expose read-only UTF-8 slices through `getBytes`,
+`getByteOffset` and `getByteLength`. Dictionary text is decoded from ISO-8859-1
+and encoded once as UTF-8. Business identifiers, street numbers and ZIP codes
+use reusable buffers; other generated text uses JDK bulk UTF-8 encoding, cached
+per column while the source string is unchanged. Callers must not modify the
+arrays or retain slices across `next()`. Historical text remains immutable until
+its retention decision is made.
+The Spark reader copies the slices directly into `UnsafeRow`, with column types
+resolved once at initialization. Null-bit mappings and scale cardinalities are
+also precomputed rather than interpreted for each generated row.
+
+The dev data writer constructs independent, typed external Spark rows directly:
+keys remain LONG, dates are dates and decimals use unscaled numeric values.
+It avoids formatting numeric values as text and casting them back in Spark.
+The text iterator remains available for native output and compatibility checks.
 
 The schema, scaling, random-stream contracts and output null-bit mappings are
 owned by this module. The dev writer derives its schema from the same metadata,
@@ -119,10 +135,16 @@ resumption, empty partitions, invalid ranges, Unicode data, nullable schemas,
 Spark typed conversion, and the dev text adapter. This validation does not
 materialize a complete 10TB dataset.
 
+UTF-8 slices are checked alongside the text output for every native fixture.
+Additional checks cover buffer reuse, non-ASCII and supplementary characters,
+immutable dictionary bytes, duplicate/reordered null bits, and typed dev rows
+across all 24 tables, including order numbers beyond the 32-bit boundary.
+
 ## Performance
 
 An opt-in Spark benchmark covers all 24 tables and consumes the generated
-`UnsafeRow` contents, including initialization and string conversion:
+`UnsafeRow` contents, including cursor initialization and UTF-8 writes. Shared
+dictionaries and JIT compilation are warmed before the measured iterations:
 
 ```bash
 RUN_BENCHMARK=1 build/mvn -pl extensions/spark/kyuubi-spark-connector-tpcds -am \

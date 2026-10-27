@@ -20,10 +20,49 @@ package org.apache.kyuubi.tpcds
 import java.util.{ArrayList => JArrayList, Iterator => JIterator, List => JList}
 
 import com.google.common.collect.AbstractIterator
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.GenericRow
+import org.apache.spark.sql.types._
 
 import org.apache.kyuubi.tpcds.gen.{TpcdsGenerator, TpcdsTable}
 
 private[tpcds] object TPCDSRowIterator {
+  def typed(
+      table: TpcdsTable,
+      scale: Double,
+      parallelism: Int,
+      partition: Int,
+      schema: StructType): JIterator[Row] = {
+    val generator = TpcdsGenerator.partition(table, scale, parallelism, partition)
+    require(schema.length == generator.columnCount(), "TPC-DS schema length mismatch")
+    val types = schema.fields.map(_.dataType)
+    new AbstractIterator[Row] {
+      override protected def computeNext(): Row = {
+        if (!generator.next()) return endOfData()
+        // Spark's external Row interface owns its values; these rows may outlive the cursor.
+        val values = new Array[Any](types.length)
+        var i = 0
+        while (i < values.length) {
+          if (!generator.isNull(i)) {
+            values(i) = types(i) match {
+              case LongType => generator.getLong(i)
+              case IntegerType => Math.toIntExact(generator.getLong(i))
+              case DateType => java.sql.Date.valueOf(
+                  java.time.LocalDate.ofEpochDay(generator.getLong(i) - 2440588L))
+              case decimal: DecimalType =>
+                java.math.BigDecimal.valueOf(generator.getLong(i), decimal.scale)
+              case StringType | _: CharType | _: VarcharType => generator.getString(i)
+              case unsupported =>
+                throw new IllegalArgumentException(s"Unsupported TPC-DS type: $unsupported")
+            }
+          }
+          i += 1
+        }
+        new GenericRow(values)
+      }
+    }
+  }
+
   def apply(
       table: TpcdsTable,
       scale: Double,

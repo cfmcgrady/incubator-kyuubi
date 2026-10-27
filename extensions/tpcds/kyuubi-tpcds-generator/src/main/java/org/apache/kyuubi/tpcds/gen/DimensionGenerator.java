@@ -25,12 +25,36 @@ import java.time.LocalDate;
 
 /** Direct generation of the 17 dimensions and inventory, without reflection or row objects. */
 final class DimensionGenerator extends GeneratedRow {
+  private static final String[] DEMOGRAPHICS = {
+    "genders", "marital_statuses", "education", "purchase_band", "credit_ratings"
+  };
+  private static final String[] DAYS = {
+    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+  };
+
+  private static final class ItemPrices {
+    static final long[] MINIMUM = prices(1);
+    static final long[] MAXIMUM = prices(2);
+
+    private static long[] prices(int column) {
+      Distribution prices = Distribution.get("item_current_price");
+      long[] values = new long[prices.size()];
+      for (int i = 0; i < values.length; i++) {
+        values[i] =
+            new java.math.BigDecimal(prices.value(i, column)).movePointRight(2).longValueExact();
+      }
+      return values;
+    }
+  }
+
   private final Scale scale;
   private final long end;
   private final RandomStreams random;
   private final long[] previousNumbers;
   private final String[] previousStrings;
   private final Address address = new Address();
+  private StringBuilder textBuffer;
+  private char[] characterBuffer;
   private long index;
   private long changeFlags;
   private boolean firstRevision;
@@ -48,8 +72,8 @@ final class DimensionGenerator extends GeneratedRow {
     }
     index = first;
     random = new RandomStreams(table.firstColumn, table.budgets, first - 1);
-    previousNumbers = new long[columnCount()];
-    previousStrings = new String[columnCount()];
+    previousNumbers = table.history ? new long[columnCount()] : null;
+    previousStrings = table.history ? new String[columnCount()] : null;
     while (index <= range.start()) generate();
   }
 
@@ -67,6 +91,24 @@ final class DimensionGenerator extends GeneratedRow {
 
   private String choose(int stream, String dictionary) {
     return pick(random, stream, dictionary);
+  }
+
+  private String text(int stream, int minimum, int maximum) {
+    return GeneratorSupport.text(random, stream, minimum, maximum, textBuffer());
+  }
+
+  private String word(String dictionary, long key, int maximum) {
+    return GeneratorSupport.word(dictionary, key, maximum, textBuffer());
+  }
+
+  private StringBuilder textBuffer() {
+    if (textBuffer == null) textBuffer = new StringBuilder(320);
+    return textBuffer;
+  }
+
+  private String characters(int stream, String alphabet, int minimum, int maximum) {
+    if (characterBuffer == null) characterBuffer = new char[20];
+    return GeneratorSupport.characters(random, stream, alphabet, minimum, maximum, characterBuffer);
   }
 
   private long key(int stream, TpcdsTable target) {
@@ -109,7 +151,7 @@ final class DimensionGenerator extends GeneratedRow {
     }
     if (revision == 0) start = FIRST_DATE + duration / 3 * 2 - offset + 1;
     put(0, index);
-    put(1, businessKey(business));
+    putBusinessKey(1, business);
     put(2, start);
     put(3, finish);
     changeFlags = uniform(stream, 0, Integer.MAX_VALUE - 1);
@@ -131,7 +173,7 @@ final class DimensionGenerator extends GeneratedRow {
         break;
       case REASON:
         put(0, index);
-        put(1, businessKey(index));
+        putBusinessKey(1, index);
         put(2, Distribution.get("return_reasons").value((int) index - 1, 0));
         break;
       case SHIP_MODE:
@@ -151,7 +193,7 @@ final class DimensionGenerator extends GeneratedRow {
         break;
       case CUSTOMER_ADDRESS:
         put(0, index);
-        put(1, businessKey(index));
+        putBusinessKey(1, index);
         address.generate(random, CA_ADDRESS, table, scale);
         address.write(this, 2);
         put(12, choose(CA_LOCATION_TYPE, "location_types"));
@@ -164,8 +206,8 @@ final class DimensionGenerator extends GeneratedRow {
         break;
       case WAREHOUSE:
         put(0, index);
-        put(1, businessKey(index));
-        put(2, text(random, W_WAREHOUSE_NAME, 10, 20));
+        putBusinessKey(1, index);
+        put(2, text(W_WAREHOUSE_NAME, 10, 20));
         put(3, uniform(W_WAREHOUSE_SQ_FT, 50000, 1000000));
         address.generate(random, W_WAREHOUSE_ADDRESS, table, scale);
         address.write(this, 4);
@@ -245,10 +287,7 @@ final class DimensionGenerator extends GeneratedRow {
   private void customerDemographics() {
     put(0, index);
     long value = index - 1;
-    String[] dictionaries = {
-      "genders", "marital_statuses", "education", "purchase_band", "credit_ratings"
-    };
-    for (int i = 0; i < dictionaries.length; i++) value = bitmap(value, i + 1, dictionaries[i]);
+    for (int i = 0; i < DEMOGRAPHICS.length; i++) value = bitmap(value, i + 1, DEMOGRAPHICS[i]);
     for (int i = 6; i < 9; i++) {
       put(i, value % 7);
       value /= 7;
@@ -265,16 +304,16 @@ final class DimensionGenerator extends GeneratedRow {
 
   private void shipMode() {
     put(0, index);
-    put(1, businessKey(index));
+    putBusinessKey(1, index);
     bitmap(bitmap(index, 2, "ship_mode_type"), 3, "ship_mode_code");
     put(4, Distribution.get("ship_mode_carrier").value((int) index - 1, 0));
-    put(5, characters(random, SM_CONTRACT, ALPHANUM, 1, 20));
+    put(5, characters(SM_CONTRACT, ALPHANUM, 1, 20));
   }
 
   private void time() {
     long second = index - 1, hour = second / 3600;
     put(0, second);
-    put(1, businessKey(index));
+    putBusinessKey(1, index);
     put(2, second);
     put(3, hour);
     put(4, second / 60 % 60);
@@ -296,7 +335,7 @@ final class DimensionGenerator extends GeneratedRow {
     Distribution calendar = Distribution.get("calendar");
     long quarterOfYear = calendar.number(calendarDay - 1, 5);
     put(0, julian);
-    put(1, businessKey(julian));
+    putBusinessKey(1, julian);
     put(2, julian);
     put(3, (year - 1900) * 12 + month - 1);
     put(4, week);
@@ -309,10 +348,7 @@ final class DimensionGenerator extends GeneratedRow {
     put(11, year);
     put(12, quarter);
     put(13, week);
-    put(
-        14,
-        new String[] {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
-            [dow]);
+    put(14, DAYS[dow]);
     put(15, year + "Q" + quarterOfYear);
     put(16, calendar.number(calendarDay - 1, 7));
     put(17, dow == 5 || dow == 6 ? 1 : 0);
@@ -351,7 +387,7 @@ final class DimensionGenerator extends GeneratedRow {
 
   private void customer() {
     put(0, index);
-    put(1, businessKey(index));
+    putBusinessKey(1, index);
     put(10, uniform(C_PREFERRED_CUST_FLAG, 1, 100) < 50 ? 1 : 0);
     put(3, key(C_CURRENT_HDEMO_SK, HOUSEHOLD_DEMOGRAPHICS));
     put(2, key(C_CURRENT_CDEMO_SK, CUSTOMER_DEMOGRAPHICS));
@@ -368,7 +404,7 @@ final class DimensionGenerator extends GeneratedRow {
     put(13, birth.getYear());
     String domain = choose(C_EMAIL_ADDRESS, "top_domains");
     int companyLength = (int) uniform(C_EMAIL_ADDRESS, 10, 20);
-    String company = characters(random, C_EMAIL_ADDRESS, ALPHANUM, 1, 20);
+    String company = characters(C_EMAIL_ADDRESS, ALPHANUM, 1, 20);
     if (company.length() > companyLength) company = company.substring(0, companyLength);
     put(16, first + "." + last + "@" + company + "." + domain);
     put(17, uniform(C_LAST_REVIEW_DATE, TODAY - 365, TODAY));
@@ -385,13 +421,13 @@ final class DimensionGenerator extends GeneratedRow {
     int duration = interval < 2 ? 182 : interval < 6 ? 91 : 30;
     long offset = (interval < 2 ? interval : interval < 6 ? interval - 2 : interval - 6) * duration;
     put(0, index);
-    put(1, businessKey(index));
+    putBusinessKey(1, index);
     put(2, FIRST_DATE + offset + catalog / 18 * 365);
     put(3, numbers[2] + duration - 1);
     put(4, "DEPARTMENT");
     put(5, catalog + 1);
     put(6, (index - 1) % pages + 1);
-    put(7, text(random, CP_DESCRIPTION, 50, 99));
+    put(7, text(CP_DESCRIPTION, 50, 99));
     put(
         8,
         Distribution.get("catalog_page_types").value(interval < 2 ? 0 : interval < 6 ? 1 : 2, 0));
@@ -399,7 +435,7 @@ final class DimensionGenerator extends GeneratedRow {
 
   private void promotion() {
     put(0, index);
-    put(1, businessKey(index));
+    putBusinessKey(1, index);
     put(2, FIRST_DATE + uniform(P_START_DATE_ID, -720, 100));
     put(3, numbers[2] + uniform(P_END_DATE_ID, 1, 60));
     put(4, key(P_ITEM_SK, ITEM));
@@ -408,7 +444,7 @@ final class DimensionGenerator extends GeneratedRow {
     put(7, word("syllables", index, 5));
     put(8, uniform(P_CHANNEL_DMAIL, 0, 511) & 1);
     for (int i = 9; i < 16; i++) put(i, 0);
-    put(16, text(random, P_CHANNEL_DETAILS, 20, 60));
+    put(16, text(P_CHANNEL_DETAILS, 20, 60));
     uniform(P_PURPOSE, 1, 4);
     put(17, "Unknown");
     put(18, 0);
@@ -419,10 +455,10 @@ final class DimensionGenerator extends GeneratedRow {
     int manager = managers.pick(random, I_MANAGER_ID, 0);
     put(20, uniform(I_MANAGER_ID, managers.number(manager, 1), managers.number(manager, 2)));
     revisions(I_SCD);
-    put(4, history(text(random, I_ITEM_DESC, 1, 200), 4));
+    put(4, history(text(I_ITEM_DESC, 1, 200), 4));
     Distribution prices = Distribution.get("item_current_price");
     int price = prices.pick(random, I_CURRENT_PRICE, 0);
-    put(5, uniform(I_CURRENT_PRICE, cents(prices.value(price, 1)), cents(prices.value(price, 2))));
+    put(5, uniform(I_CURRENT_PRICE, ItemPrices.MINIMUM[price], ItemPrices.MAXIMUM[price]));
     // SCD_INT in the reference touches decimal flags, not the monetary value.
     changeFlags >>>= 1;
     put(6, history(numbers[5] * uniform(I_WHOLESALE_COST, 30, 90) / 100, 6));
@@ -449,7 +485,7 @@ final class DimensionGenerator extends GeneratedRow {
                 manufacturers.number(manufacturer, 2)),
             13));
     put(14, history(word("syllables", numbers[13], 50), 14));
-    String formulation = characters(random, I_FORMULATION, "0123456789", 20, 20),
+    String formulation = characters(I_FORMULATION, "0123456789", 20, 20),
         color = pick(random, I_FORMULATION, "colors", 1);
     int position = (int) uniform(I_FORMULATION, 0, formulation.length() - color.length() - 1);
     put(
@@ -465,10 +501,6 @@ final class DimensionGenerator extends GeneratedRow {
     put(21, word("syllables", index, 50));
     key(I_PROMO_SK, PROMOTION);
     uniform(I_PROMO_SK, 1, 100);
-  }
-
-  private static long cents(String decimal) {
-    return new java.math.BigDecimal(decimal).movePointRight(2).longValueExact();
   }
 
   private void webPage() {
@@ -527,8 +559,8 @@ final class DimensionGenerator extends GeneratedRow {
     put(7, "Unknown");
     put(8, history(name(random, WEB_MANAGER), 8));
     put(9, history(uniform(WEB_MARKET_ID, 1, 6), 9));
-    put(10, history(text(random, WEB_MARKET_CLASS, 20, 50), 10));
-    put(11, history(text(random, WEB_MARKET_DESC, 20, 100), 11));
+    put(10, history(text(WEB_MARKET_CLASS, 20, 50), 10));
+    put(11, history(text(WEB_MARKET_DESC, 20, 100), 11));
     put(12, history(name(random, WEB_MARKET_MANAGER), 12));
     put(13, history(uniform(WEB_COMPANY_ID, 1, 6), 13));
     put(14, history(word("syllables", numbers[13], 100), 14));
@@ -552,7 +584,7 @@ final class DimensionGenerator extends GeneratedRow {
     put(28, history(uniform(W_STORE_TAX_PERCENTAGE, 0, 11), 28));
     uniform(W_STORE_GEOGRAPHY_CLASS, 1, 4);
     put(11, pointer("Unknown"));
-    put(12, history(text(random, W_STORE_MARKET_DESC, 15, 100), 12));
+    put(12, history(text(W_STORE_MARKET_DESC, 15, 100), 12));
     put(13, history(name(random, W_STORE_MARKET_MANAGER), 13));
     uniform(W_STORE_DIVISION_NAME, 1, 4);
     put(14, history(1, 14));
@@ -584,8 +616,8 @@ final class DimensionGenerator extends GeneratedRow {
     put(10, pointer(choose(CC_HOURS, "call_center_hours")));
     put(11, history(name(random, CC_MANAGER), 11));
     put(12, history(uniform(CC_MARKET_ID, 1, 6), 12));
-    put(13, history(text(random, CC_MARKET_CLASS, 20, 50), 13));
-    put(14, history(text(random, CC_MARKET_DESC, 20, 100), 14));
+    put(13, history(text(CC_MARKET_CLASS, 20, 50), 13));
+    put(14, history(text(CC_MARKET_DESC, 20, 100), 14));
     put(15, history(name(random, CC_MARKET_MANAGER), 15));
     put(18, history(uniform(CC_COMPANY, 1, 6), 18));
     put(16, history(uniform(CC_COMPANY, 1, 6), 16));

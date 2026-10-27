@@ -17,13 +17,99 @@
 
 package org.apache.kyuubi.tpcds
 
+import java.nio.file.{Files, Path}
+import java.util.Comparator
+
 import scala.collection.JavaConverters._
 
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.types._
 import org.scalatest.funsuite.AnyFunSuite
 
-import org.apache.kyuubi.tpcds.gen.{TpcdsTable => Table}
+import org.apache.kyuubi.tpcds.gen.{TpcdsGenerator, TpcdsTable => Table}
 
 class TPCDSRowIteratorSuite extends AnyFunSuite {
+
+  test("the dev DataFrame and Parquet writer preserve typed values") {
+    val directory = Files.createTempDirectory("tpcds-typed-writer")
+    val spark = SparkSession.builder().master("local[2]")
+      .config("spark.ui.enabled", "false")
+      .config("spark.sql.catalogImplementation", "in-memory")
+      .config("spark.sql.warehouse.dir", directory.resolve("warehouse").toUri.toString)
+      .config("spark.sql.session.timeZone", "UTC")
+      .getOrCreate()
+    try {
+      val generators = DataGenerator.initTable(spark).map(table => table.name -> table).toMap
+      Seq(Table.CUSTOMER, Table.ITEM, Table.DATE_DIM, Table.STORE_SALES).foreach { table =>
+        val generator = generators(table.getName)
+        generator.setScaleFactor(1)
+        generator.setParallelism(2)
+        val frame = generator.toDF.limit(128)
+        val expected =
+          TPCDSRowIterator.typed(table, 1, 2, 1, frame.schema).asScala.take(128).toVector
+        val actual = frame.collect().toVector
+        assert(actual.size == expected.size)
+        assert(actual.toSet == expected.toSet, table.getName)
+        val output = directory.resolve(table.getName).toString
+        frame.coalesce(1).write.parquet(output)
+        val restored = spark.read.schema(frame.schema).parquet(output).collect().toVector
+        assert(restored.size == expected.size)
+        assert(restored.toSet == expected.toSet, table.getName)
+      }
+    } finally {
+      spark.stop()
+      val files = Files.walk(directory)
+      try files.sorted(Comparator.reverseOrder[Path]()).forEach(path => Files.delete(path))
+      finally files.close()
+    }
+  }
+
+  test("typed rows preserve all 24 schemas, values and ownership") {
+    Table.values().foreach { table =>
+      val schema = StructType(table.getColumns.map { column =>
+        val sqlType = column.getType
+        val dataType = if (sqlType.startsWith("char") || sqlType.startsWith("varchar")) {
+          StringType
+        } else DataType.fromDDL(sqlType)
+        StructField(column.getName, dataType, column.isNullable)
+      })
+      val parallelism =
+        if (table.getName.endsWith("_sales") ||
+          table.getName.endsWith("_returns")) 100000000
+        else 1
+      val partition = if (parallelism == 1) 1 else parallelism - 1
+      val rows = TPCDSRowIterator.typed(table, 100000, parallelism, partition, schema)
+      val expected = TpcdsGenerator.partition(table, 100000, parallelism, partition)
+      val retained =
+        scala.collection.mutable.ArrayBuffer.empty[(org.apache.spark.sql.Row, Vector[Any])]
+      var count = 0
+      while (count < 100 && expected.next()) {
+        assert(rows.hasNext)
+        assert(rows.hasNext)
+        val row = rows.next()
+        schema.fields.zipWithIndex.foreach { case (field, i) =>
+          assert(row.isNullAt(i) == expected.isNull(i))
+          if (!expected.isNull(i)) {
+            field.dataType match {
+              case LongType => assert(row.getLong(i) == expected.getLong(i))
+              case IntegerType => assert(row.getInt(i) == expected.getLong(i))
+              case DateType => assert(row.getDate(i).toString == expected.getString(i))
+              case decimal: DecimalType =>
+                assert(row.getDecimal(i) == java.math.BigDecimal.valueOf(
+                  expected.getLong(i),
+                  decimal.scale))
+              case StringType => assert(row.getString(i) == expected.getString(i))
+              case other => fail(s"Unexpected type: $other")
+            }
+          }
+        }
+        retained += row -> row.toSeq.toVector
+        count += 1
+      }
+      assert(count > 0, table.getName)
+      retained.foreach { case (row, snapshot) => assert(row.toSeq == snapshot) }
+    }
+  }
 
   test("all 24 tables use the text cursor and preserve repeated hasNext calls") {
     Table.values().foreach { table =>

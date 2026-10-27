@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -68,6 +69,21 @@ class TpcdsGeneratorTest {
         assertEquals(line, line(actual), "row " + count);
         for (int i = 0; i < actual.columnCount(); i++) {
           if (actual.isNull(i)) assertTrue(table.column(i).isNullable(), table.column(i).getName());
+          String type = table.column(i).getType();
+          if (type.startsWith("char") || type.startsWith("varchar")) {
+            if (actual.isNull(i)) {
+              assertNull(actual.getBytes(i));
+              assertEquals(0, actual.getByteLength(i));
+            } else {
+              assertEquals(
+                  actual.getString(i),
+                  new String(
+                      actual.getBytes(i),
+                      actual.getByteOffset(i),
+                      actual.getByteLength(i),
+                      StandardCharsets.UTF_8));
+            }
+          }
         }
         count++;
       }
@@ -78,6 +94,43 @@ class TpcdsGeneratorTest {
     StringBuilder checksum = new StringBuilder();
     for (byte b : digest.digest()) checksum.append(String.format("%02x", b & 255));
     assertEquals(fields[5], checksum.toString(), "fixture checksum");
+  }
+
+  @Test
+  void utf8BuffersMatchJdkEncodingAndDoNotModifyDictionaries() {
+    Utf8Value value = new Utf8Value();
+    Distribution.get("countries");
+    byte[] country = Distribution.encoded("CÔTE D'IVOIRE");
+    assertNotNull(country);
+    byte[] saved = country.clone();
+    for (String text :
+        new String[] {"CÔTE D'IVOIRE", "", "ASCII", "éàÿ", "中文", "𝄞", "\uD800x\uDC00"}) {
+      value.encode(text);
+      assertArrayEquals(
+          text.getBytes(StandardCharsets.UTF_8), Arrays.copyOf(value.bytes, value.length));
+      value.number(Long.MIN_VALUE, 5);
+      assertEquals(Long.toString(Long.MIN_VALUE), value.toString());
+      value.businessKey(1);
+      assertEquals("AAAAAAAABAAAAAAA", value.toString());
+    }
+    assertArrayEquals(saved, country);
+    for (long number : new long[] {0, 1, -1, 1234, -1234, 123456, Long.MAX_VALUE, Long.MIN_VALUE}) {
+      value.number(number, 5);
+      assertEquals(String.format(java.util.Locale.ROOT, "%05d", number), value.toString());
+    }
+  }
+
+  @Test
+  void precomputedNullMappingsPreserveDuplicateAndReorderedBits() {
+    for (TpcdsTable table : TpcdsTable.values()) {
+      for (int bit = 0; bit < Long.SIZE; bit++) {
+        long bitmap = 1L << bit, expected = 0;
+        for (int column = 0; column < table.columnCount(); column++) {
+          if ((bitmap & (1L << table.column(column).nullBit)) != 0) expected |= 1L << column;
+        }
+        assertEquals(expected, table.outputNulls(bitmap), table + " bit " + bit);
+      }
+    }
   }
 
   @Test

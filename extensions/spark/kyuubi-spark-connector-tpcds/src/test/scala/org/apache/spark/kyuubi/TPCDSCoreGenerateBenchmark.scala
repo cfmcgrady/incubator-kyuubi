@@ -57,8 +57,11 @@ class TPCDSCoreGenerateBenchmark extends KyuubiFunSuite {
         checksum
       }
       val expected = run()
+      (1 to 3).foreach { _ => assert(run() == expected) }
       val benchmark = new Benchmark(s"${table.getName} SF$scale", count, minTime = 1.second)
-      benchmark.addCase("Independent core + UnsafeRow", 3) { _ => assert(run() == expected) }
+      benchmark.addCase("Independent core + UTF-8 UnsafeRow", 7) { _ =>
+        assert(run() == expected)
+      }
       benchmark.run()
     }
   }

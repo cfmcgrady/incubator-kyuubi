@@ -17,10 +17,36 @@
 
 package org.apache.kyuubi.tpcds.gen;
 
+import java.util.concurrent.atomic.AtomicReferenceArray;
+
 /** Cardinalities and business-key domains using native integer-scale interpolation. */
 public final class Scale {
   private static final int[] SCALES = {1, 10, 100, 300, 1000, 3000, 10000, 30000, 100000};
+  private static final long[] CITIES = {2, 6, 18, 30, 54, 90, 165, 270, 495};
+  private static final long[] COUNTIES = {1, 3, 9, 15, 27, 45, 81, 135, 245};
+  private static final long[] COMPANIES = {2, 3, 4, 5, 5, 5, 5, 5, 5};
+  private static final TpcdsTable[] TABLES = TpcdsTable.values();
+  // Cache only the finite catalog scales; arbitrary user scales do not accumulate globally.
+  private static final AtomicReferenceArray<Counts> STANDARD =
+      new AtomicReferenceArray<>(SCALES.length + 2);
+
+  private static final class Counts {
+    final long[] rows, ids;
+    final long cities, counties, companies;
+
+    Counts(long[] rows, long[] ids, long cities, long counties, long companies) {
+      this.rows = rows;
+      this.ids = ids;
+      this.cities = cities;
+      this.counties = counties;
+      this.companies = companies;
+    }
+  }
+
   private final double scale;
+  private final long[] rowCounts;
+  private final long[] idCounts;
+  private final long cities, counties, companies;
 
   public Scale(double scale) {
     if (!Double.isFinite(scale)
@@ -30,6 +56,33 @@ public final class Scale {
       throw new IllegalArgumentException("Unsupported TPC-DS scale: " + scale);
     }
     this.scale = scale;
+    int standard = scale == 0 ? 0 : scale == 0.01 ? 1 : -1;
+    for (int i = 0; i < SCALES.length; i++) if (scale == SCALES[i]) standard = i + 2;
+    Counts counts = standard < 0 ? null : STANDARD.get(standard);
+    if (counts == null) {
+      counts = calculateCounts();
+      if (standard >= 0 && !STANDARD.compareAndSet(standard, null, counts))
+        counts = STANDARD.get(standard);
+    }
+    rowCounts = counts.rows;
+    idCounts = counts.ids;
+    cities = counts.cities;
+    counties = counts.counties;
+    companies = counts.companies;
+  }
+
+  private Counts calculateCounts() {
+    long[] rows = new long[TABLES.length], ids = new long[TABLES.length];
+    for (TpcdsTable table : TABLES) {
+      if (table == TpcdsTable.INVENTORY) continue;
+      long count = calculateRows(table);
+      rows[table.ordinal()] = count;
+      ids[table.ordinal()] = identifiers(table, count);
+    }
+    long inventory = ids[TpcdsTable.ITEM.ordinal()] * rows[TpcdsTable.WAREHOUSE.ordinal()] * 261;
+    rows[TpcdsTable.INVENTORY.ordinal()] = inventory;
+    ids[TpcdsTable.INVENTORY.ordinal()] = inventory;
+    return new Counts(rows, ids, pseudo(CITIES), pseudo(COUNTIES), pseudo(COMPANIES));
   }
 
   public double value() {
@@ -37,9 +90,11 @@ public final class Scale {
   }
 
   public long rows(TpcdsTable table) {
+    return rowCounts[table.ordinal()];
+  }
+
+  private long calculateRows(TpcdsTable table) {
     if (scale == 0) return 0;
-    if (table == TpcdsTable.INVENTORY)
-      return ids(TpcdsTable.ITEM) * rows(TpcdsTable.WAREHOUSE) * 261;
     table = table.parent();
     long base;
     if (scale == 0.01) {
@@ -59,22 +114,25 @@ public final class Scale {
   }
 
   public long ids(TpcdsTable table) {
-    long count = rows(table);
+    return idCounts[table.ordinal()];
+  }
+
+  private static long identifiers(TpcdsTable table, long count) {
     if (!table.history) return count;
     long remainder = count % 6;
     return count / 6 * 3 + (remainder == 0 ? 0 : remainder == 1 ? 1 : remainder < 4 ? 2 : 3);
   }
 
   long cities() {
-    return pseudo(new long[] {2, 6, 18, 30, 54, 90, 165, 270, 495});
+    return cities;
   }
 
   long counties() {
-    return pseudo(new long[] {1, 3, 9, 15, 27, 45, 81, 135, 245});
+    return counties;
   }
 
   long companies() {
-    return pseudo(new long[] {2, 3, 4, 5, 5, 5, 5, 5, 5});
+    return companies;
   }
 
   private long pseudo(long[] counts) {

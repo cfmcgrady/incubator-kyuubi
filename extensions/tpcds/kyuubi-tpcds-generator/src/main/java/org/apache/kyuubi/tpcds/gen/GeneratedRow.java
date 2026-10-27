@@ -22,14 +22,20 @@ import java.time.LocalDate;
 abstract class GeneratedRow implements RowCursor {
   final TpcdsTable table;
   final long[] numbers;
-  final String[] strings;
+  final Object[] strings;
+  private final Utf8Value[] encoded;
   long nulls;
   boolean positioned;
 
   GeneratedRow(TpcdsTable table) {
     this.table = table;
     numbers = new long[table.columnCount()];
-    strings = new String[numbers.length];
+    strings = new Object[numbers.length];
+    encoded = new Utf8Value[numbers.length];
+    for (int i = 0; i < encoded.length; i++) {
+      String type = table.column(i).getType();
+      if (type.startsWith("char") || type.startsWith("varchar")) encoded[i] = new Utf8Value();
+    }
   }
 
   public final int columnCount() {
@@ -47,12 +53,14 @@ abstract class GeneratedRow implements RowCursor {
 
   public final long getLong(int ordinal) {
     checkPosition();
-    return strings[ordinal] == null ? numbers[ordinal] : Long.parseLong(strings[ordinal]);
+    return strings[ordinal] == null
+        ? numbers[ordinal]
+        : Long.parseLong(strings[ordinal].toString());
   }
 
   public final String getString(int ordinal) {
     if (isNull(ordinal)) return null;
-    if (strings[ordinal] != null) return strings[ordinal];
+    if (strings[ordinal] != null) return strings[ordinal].toString();
     long value = numbers[ordinal];
     TpcdsTable.Column column = table.column(ordinal);
     if (column.printKind.equals("boolean")) return value == 0 ? "N" : "Y";
@@ -69,6 +77,37 @@ abstract class GeneratedRow implements RowCursor {
     return (value < 0 ? "-" : "") + magnitude / 100 + "." + (cents < 10 ? "0" : "") + cents;
   }
 
+  private Utf8Value utf8(int ordinal) {
+    checkPosition();
+    Utf8Value result = encoded[ordinal];
+    if (result == null) throw new IllegalArgumentException("Not a text column: " + ordinal);
+    if ((nulls & (1L << ordinal)) != 0) return null;
+    if (strings[ordinal] != result) result.encode(getString(ordinal));
+    return result;
+  }
+
+  public final byte[] getBytes(int ordinal) {
+    Utf8Value value = utf8(ordinal);
+    return value == null ? null : value.bytes;
+  }
+
+  public final int getByteLength(int ordinal) {
+    Utf8Value value = utf8(ordinal);
+    return value == null ? 0 : value.length;
+  }
+
+  final void putBusinessKey(int column, long value) {
+    encoded[column].businessKey(value);
+    strings[column] = encoded[column];
+    numbers[column] = 0;
+  }
+
+  final void putNumberText(int column, long value, int minimumWidth) {
+    encoded[column].number(value, minimumWidth);
+    strings[column] = encoded[column];
+    numbers[column] = 0;
+  }
+
   final void put(int column, long value) {
     numbers[column] = value;
     strings[column] = null;
@@ -80,15 +119,10 @@ abstract class GeneratedRow implements RowCursor {
   }
 
   final void applyNulls(long bitmap) {
-    nulls = 0;
-    for (int i = 0; i < numbers.length; i++) {
-      TpcdsTable.Column column = table.column(i);
-      if ((bitmap & (1L << column.nullBit)) != 0
-          || ((column.printKind.equals("key") || column.printKind.equals("date"))
-              && numbers[i] == -1
-              && strings[i] == null)) {
-        nulls |= 1L << i;
-      }
+    nulls = table.outputNulls(bitmap);
+    for (long remaining = table.sentinelColumns; remaining != 0; remaining &= remaining - 1) {
+      int i = Long.numberOfTrailingZeros(remaining);
+      if (numbers[i] == -1 && strings[i] == null) nulls |= 1L << i;
     }
   }
 }

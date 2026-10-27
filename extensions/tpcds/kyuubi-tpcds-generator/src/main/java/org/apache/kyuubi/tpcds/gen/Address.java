@@ -53,14 +53,14 @@ final class Address {
   }
 
   void write(GeneratedRow row, int start) {
-    row.put(start, Long.toString(number));
+    row.putNumberText(start, number, 1);
     row.put(start + 1, street);
     row.put(start + 2, type);
     row.put(start + 3, suite);
     row.put(start + 4, city);
     row.put(start + 5, county);
     row.put(start + 6, state);
-    row.put(start + 7, String.format(java.util.Locale.ROOT, "%05d", zip));
+    row.putNumberText(start + 7, zip, 5);
     row.put(start + 8, "United States");
     row.put(start + 9, offset * 100);
   }

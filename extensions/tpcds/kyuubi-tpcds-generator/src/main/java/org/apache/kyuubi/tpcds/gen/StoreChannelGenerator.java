@@ -60,9 +60,6 @@ public final class StoreChannelGenerator implements RowCursor {
   private static final int[] RETURNS_BUDGETS = {
     32, 32, 16, 16, 16, 16, 16, 16, 16, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 80, 32
   };
-  private static final int[] SALES_NULL_BITS = {
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 14, 19, 20, 21
-  };
   private static final int[] HOUR_WEIGHTS = {4, 8, 12, 7, 8, 9, 12, 4, 4, 12, 8, 8, 4};
   private static final int[] HOURS = cumulative(HOUR_WEIGHTS);
   private static final int[] ORDINARY_DAYS = calendar(false);
@@ -274,11 +271,9 @@ public final class StoreChannelGenerator implements RowCursor {
     values[20] = paid;
     values[21] = paid + tax;
     values[22] = paid - wholesale * quantity;
-    nulls = 0;
-    for (int i = 0; i < values.length; i++) {
-      if ((bitmap & (1L << SALES_NULL_BITS[i])) != 0 || (i < 10 && values[i] == -1)) {
-        nulls |= 1L << i;
-      }
+    nulls = TpcdsTable.STORE_SALES.outputNulls(bitmap);
+    for (int i = 0; i < 10; i++) {
+      if (values[i] == -1) nulls |= 1L << i;
     }
   }
 

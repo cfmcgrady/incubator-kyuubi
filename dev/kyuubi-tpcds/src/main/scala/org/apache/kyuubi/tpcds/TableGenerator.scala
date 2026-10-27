@@ -19,9 +19,8 @@ package org.apache.kyuubi.tpcds
 
 import scala.collection.JavaConverters._
 
-import org.apache.spark.sql.{DataFrame, Row, SparkSession}
-import org.apache.spark.sql.functions.col
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.types.{StructField, StructType}
 
 import org.apache.kyuubi.tpcds.gen.TpcdsTable
 
@@ -31,7 +30,6 @@ case class TableGenerator(
     fields: StructField*) {
 
   private val schema: StructType = StructType(fields)
-  private val rawSchema: StructType = StructType(fields.map(f => StructField(f.name, StringType)))
 
   private var scaleFactor: Int = 1
   def setScaleFactor(scale: Int): Unit = this.scaleFactor = scale
@@ -47,15 +45,12 @@ case class TableGenerator(
 
   private def radix: Int = (scaleFactor / 100) max 5 min parallelism
 
-  private def toDF: DataFrame = {
+  private[tpcds] def toDF: DataFrame = {
     val rowRDD = ss.sparkContext.parallelize(1 to parallelism, parallelism).flatMap { i =>
-      TPCDSRowIterator(TpcdsTable.getTable(name), scaleFactor, parallelism, i).asScala
-        .map { _.asScala }
-        .map { row => Row.fromSeq(row.toSeq) }
+      TPCDSRowIterator.typed(TpcdsTable.getTable(name), scaleFactor, parallelism, i, schema).asScala
     }
 
-    val columns = fields.map { f => col(f.name).cast(f.dataType).as(f.name) }
-    ss.createDataFrame(rowRDD, rawSchema).select(columns: _*)
+    ss.createDataFrame(rowRDD, schema)
   }
 
   def create(): Unit = {

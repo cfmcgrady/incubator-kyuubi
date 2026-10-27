@@ -29,4 +29,20 @@ public interface RowCursor {
   long getLong(int ordinal);
 
   String getString(int ordinal);
+
+  /**
+   * Read-only UTF-8 storage for CHAR/VARCHAR columns, or null for a null value. Consume the slice
+   * before next(): its storage may be reused by the cursor or shared with other cursors.
+   */
+  default byte[] getBytes(int ordinal) {
+    throw new IllegalArgumentException("Not a text column: " + ordinal);
+  }
+
+  default int getByteOffset(int ordinal) {
+    return 0;
+  }
+
+  default int getByteLength(int ordinal) {
+    throw new IllegalArgumentException("Not a text column: " + ordinal);
+  }
 }

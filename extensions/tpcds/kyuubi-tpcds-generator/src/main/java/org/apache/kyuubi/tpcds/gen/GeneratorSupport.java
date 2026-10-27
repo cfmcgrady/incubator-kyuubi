@@ -34,15 +34,6 @@ final class GeneratorSupport {
     return LocalDate.ofEpochDay(julian - JULIAN_EPOCH);
   }
 
-  static String businessKey(long key) {
-    char[] result = new char[16];
-    for (int i = 0; i < 8; i++) {
-      result[i] = (char) ('A' + ((key >>> (32 + i * 4)) & 15));
-      result[i + 8] = (char) ('A' + ((key >>> (i * 4)) & 15));
-    }
-    return new String(result);
-  }
-
   static long historyKey(long id, long date, long maximum) {
     long group = id / 3 * 6, duration = LAST_DATE - FIRST_DATE;
     long key =
@@ -80,9 +71,9 @@ final class GeneratorSupport {
     return pick(random, stream, "first_names") + " " + pick(random, stream, "last_names");
   }
 
-  static String word(String dictionary, long index, int maximum) {
+  static String word(String dictionary, long index, int maximum, StringBuilder result) {
     Distribution syllables = Distribution.get(dictionary);
-    StringBuilder result = new StringBuilder();
+    result.setLength(0);
     while (index > 0) {
       String syllable = syllables.value((int) (index % syllables.size()), 0);
       if (result.length() + syllable.length() > maximum) break;
@@ -93,23 +84,23 @@ final class GeneratorSupport {
   }
 
   static String characters(
-      RandomStreams random, int stream, String alphabet, int minimum, int maximum) {
+      RandomStreams random, int stream, String alphabet, int minimum, int maximum, char[] result) {
     int length = (int) random.uniform(stream, minimum, maximum);
-    char[] result = new char[length];
     for (int i = 0; i < maximum; i++) {
       char value = alphabet.charAt((int) random.uniform(stream, 0, alphabet.length() - 1));
       if (i < length) result[i] = value;
     }
-    return new String(result);
+    return new String(result, 0, length);
   }
 
-  static String text(RandomStreams random, int stream, int minimum, int maximum) {
+  static String text(
+      RandomStreams random, int stream, int minimum, int maximum, StringBuilder result) {
     int length = (int) random.uniform(stream, minimum, maximum);
-    StringBuilder result = new StringBuilder(length + 100);
+    result.setLength(0);
     boolean capitalize = true;
     while (result.length() < length) {
       String syntax = pick(random, stream, "sentences");
-      StringBuilder sentence = new StringBuilder();
+      int start = result.length();
       for (int i = 0; i < syntax.length(); i++) {
         char symbol = syntax.charAt(i);
         String dictionary;
@@ -141,12 +132,11 @@ final class GeneratorSupport {
           default:
             dictionary = null;
         }
-        if (dictionary == null) sentence.append(symbol);
-        else sentence.append(pick(random, stream, dictionary));
+        if (dictionary == null) result.append(symbol);
+        else result.append(pick(random, stream, dictionary));
       }
-      if (capitalize) sentence.setCharAt(0, Character.toUpperCase(sentence.charAt(0)));
-      capitalize = sentence.charAt(sentence.length() - 1) == '.';
-      result.append(sentence);
+      if (capitalize) result.setCharAt(start, Character.toUpperCase(result.charAt(start)));
+      capitalize = result.charAt(result.length() - 1) == '.';
       if (result.length() < length) result.append(' ');
     }
     return result.substring(0, length);

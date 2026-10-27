@@ -30,12 +30,22 @@ import java.util.concurrent.ConcurrentHashMap;
 /** Immutable benchmark dictionaries, shared by independent task-local random streams. */
 final class Distribution {
   private static final ConcurrentHashMap<String, Distribution> CACHE = new ConcurrentHashMap<>();
+  // Only immutable dictionary entries enter this cache, never generated values.
+  private static final ConcurrentHashMap<String, byte[]> UTF8 = new ConcurrentHashMap<>();
   private final String[][] values;
   private final int[][] cumulative;
 
   private Distribution(String[][] values, int[][] cumulative) {
     this.values = values;
     this.cumulative = cumulative;
+    for (String[] row : values) {
+      for (String value : row)
+        UTF8.computeIfAbsent(value, text -> text.getBytes(StandardCharsets.UTF_8));
+    }
+  }
+
+  static byte[] encoded(String value) {
+    return UTF8.get(value);
   }
 
   static Distribution get(String name) {

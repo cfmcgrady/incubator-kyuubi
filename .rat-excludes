@@ -56,3 +56,6 @@ build/scala-*/**
 **/BeeLine.properties
 **/sql-keywords.properties
 **/python/**
+
+# Unmodified benchmark dictionaries; provenance and notices are retained by the generator module.
+**/kyuubi-tpcds-generator/src/main/resources/org/apache/kyuubi/tpcds/gen/distribution/*.dst

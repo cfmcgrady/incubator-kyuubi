@@ -1,0 +1,33 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+#
+# scale	partitions	partition	table	rows	sha256	resource
+10	24000	1	store_sales	1225	87dbb52322c9e7d27a5eab9eeb842f028dd71f7192d2af5af315b8cf2c8df60f	10-1-store_sales.dat.gz
+10	24000	1	store_returns	115	c7925045f39c0a0f403284c99801bbe60618df9de751e33ccbf47675e0af3a52	10-1-store_returns.dat.gz
+10	24000	23999	store_sales	1242	7084759926c60bb2c56a3f806a61fdf50f8ee3e0e1eb51d1c3d3f8496d4bc4a8	10-23999-store_sales.dat.gz
+10	24000	23999	store_returns	100	aebde97d34e7a192a000dd75df28a3cb2351eb91fbdd74508d2efccd91755337	10-23999-store_returns.dat.gz
+10000	24000000	21474837	store_sales	1222	27354670cba50babef5ed12cca4701d9af17ca1bf3bfb5d447e92b44a3edfa27	10000-21474837-store_sales.dat.gz
+10000	24000000	21474837	store_returns	104	843cb77f37eaadaea3e15a39972cd709d779d1855ba3b12633d5ecd7bf9d949f	10000-21474837-store_returns.dat.gz
+10000	24000000	23000001	store_sales	1176	e604828cf4b323b544a67831b2b0275d307279b6796facff21aa3d935cc70b2c	10000-23000001-store_sales.dat.gz
+10000	24000000	23000001	store_returns	121	54a14528f77d1a406981bbf51940a5e3c978543acb1dc1ed67aa931c050eefe7	10000-23000001-store_returns.dat.gz
+30000	72000000	71999999	store_sales	1160	6c0c7d7ae1b84d76cc2c4427074ab52475250056ad493431a5f3b2046e1946bc	30000-71999999-store_sales.dat.gz
+30000	72000000	71999999	store_returns	125	e8542b48d49d5cfe695e1939ca91479f9746f9422a4fdac67f7f372bf3637dfa	30000-71999999-store_returns.dat.gz
+100000	240000000	239999999	store_sales	1154	c3418dddcc9d941f32b50b445b5f5a7efa1136f30d3282854eb446aa4af4c0f2	100000-239999999-store_sales.dat.gz
+100000	240000000	239999999	store_returns	120	179c09d0972c0eb5eba7b762ad44cf44120e1251e0c051e1387b5394822c9110	100000-239999999-store_returns.dat.gz
+20	48000	47999	store_sales	1204	ff6812e4ab23f2ce8abca1c29bf0736bb255a40439dd66c40a993cc00231c1ad	20-47999-store_sales.dat.gz
+20	48000	47999	store_returns	122	50feefb096c6f77181348b307bce6ac1fc589c729530d39c5bdffaa8eda0e18a	20-47999-store_returns.dat.gz
+200	480000	2	store_sales	1221	9c090a07af3ff37fb65f7de57a3a1674a5268e0e4ce2e2d6e2417f90644a1b4e	200-2-store_sales.dat.gz
+200	480000	2	store_returns	128	126ffc2f43fded8c20c2f8d3ab302c08d744e68e4e9b58f1831abbfc1785c9a3	200-2-store_returns.dat.gz

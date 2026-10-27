@@ -32,6 +32,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.kyuubi</groupId>
+            <artifactId>kyuubi-tpcds-generator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
             <scope>provided</scope>
@@ -46,11 +51,6 @@
         <dependency>
             <groupId>com.github.scopt</groupId>
             <artifactId>scopt_${scala.binary.version}</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.trino.tpcds</groupId>
-            <artifactId>tpcds</artifactId>
         </dependency>
 
         <dependency>
@@ -69,8 +69,8 @@
                     <shadedArtifactAttached>false</shadedArtifactAttached>
                     <artifactSet>
                         <includes>
+                            <include>org.apache.kyuubi:kyuubi-tpcds-generator</include>
                             <include>com.github.scopt:scopt_${scala.binary.version}</include>
-                            <include>io.trino.tpcds:tpcds</include>
                             <include>com.google.guava:guava</include>
                         </includes>
                     </artifactSet>

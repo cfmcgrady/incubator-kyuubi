@@ -21,11 +21,12 @@ import java.math.RoundingMode
 import java.util.OptionalLong
 
 import com.google.common.math.LongMath
-import io.trino.tpcds._
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.connector.read._
 import org.apache.spark.sql.types._
+
+import org.apache.kyuubi.tpcds.gen.{TpcdsGenerator, TpcdsTable => Table}
 
 case class TPCDSTableChunk(table: String, scale: Double, parallelism: Int, index: Int)
   extends InputPartition
@@ -40,8 +41,7 @@ class TPCDSBatchScan(
   private val _sizeInBytes: Long = TPCDSStatisticsUtils.sizeInBytes(table, scale)
   private val _numRows: Long = TPCDSStatisticsUtils.numRows(table, scale)
 
-  // Tables with fewer than 1000000 are not parallelized,
-  // the limit made in `io.trino.tpcds.Parallel#splitWork`.
+  // Small dimensions are read by one task; RowRange also handles the native one-million-row limit.
   private val parallelism: Int =
     if (table.isSmall) 1
     else math.max(
@@ -82,17 +82,9 @@ class TPCDSPartitionReader(
     index: Int,
     schema: StructType) extends PartitionReader[InternalRow] {
 
-  private val chuckInfo: Session = {
-    val opt = new Options
-    opt.table = table
-    opt.scale = scale
-    opt.parallelism = parallelism
-    opt.toSession.withChunkNumber(index)
-  }
-
-  private val iterator = KyuubiTPCDSResults
-    .constructResults(chuckInfo.getOnlyTableToGenerate, chuckInfo, schema)
-    .iterator
+  private val iterator = new TPCDSRowCursorIterator(
+    TpcdsGenerator.partition(Table.getTable(table), scale, parallelism, index),
+    schema)
 
   private var currentRow: InternalRow = _
 

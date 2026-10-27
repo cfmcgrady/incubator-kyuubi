@@ -19,10 +19,11 @@ package org.apache.kyuubi.tpcds
 
 import scala.collection.JavaConverters._
 
-import io.trino.tpcds.Options
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
+
+import org.apache.kyuubi.tpcds.gen.TpcdsTable
 
 case class TableGenerator(
     name: String,
@@ -48,17 +49,8 @@ case class TableGenerator(
 
   private def toDF: DataFrame = {
     val rowRDD = ss.sparkContext.parallelize(1 to parallelism, parallelism).flatMap { i =>
-      val opt = new Options
-      opt.table = name
-      opt.scale = scaleFactor
-      opt.parallelism = parallelism
-
-      val session = opt.toSession.withChunkNumber(i)
-      val table = session.getOnlyTableToGenerate
-
-      TPCDSRowIterator(table, session).asScala
+      TPCDSRowIterator(TpcdsTable.getTable(name), scaleFactor, parallelism, i).asScala
         .map { _.asScala }
-        .map { row => row.map { v => if (v == Options.DEFAULT_NULL_STRING) null else v } }
         .map { row => Row.fromSeq(row.toSeq) }
     }
 

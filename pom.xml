@@ -54,6 +54,7 @@
     <modules>
         <module>dev/kyuubi-codecov</module>
         <module>extensions/server/kyuubi-server-plugin</module>
+        <module>extensions/tpcds/kyuubi-tpcds-generator</module>
         <module>extensions/flink/kyuubi-flink-token-provider</module>
         <module>extensions/spark/kyuubi-extension-spark-jdbc-dialect</module>
         <module>extensions/spark/kyuubi-spark-authz</module>
@@ -228,7 +229,6 @@
         <threeten.version>1.7.0</threeten.version>
         <!-- trino-client involves kotlin runtime dependencies since 412 because of upgrading okhttp -->
         <trino.client.version>411</trino.client.version>
-        <trino.tpcds.version>1.4</trino.tpcds.version>
         <trino.tpch.version>1.1</trino.tpch.version>
         <vertx.version>4.5.3</vertx.version>
 
@@ -581,18 +581,6 @@
                 <groupId>io.trino</groupId>
                 <artifactId>trino-jdbc</artifactId>
                 <version>${trino.client.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.trino.tpcds</groupId>
-                <artifactId>tpcds</artifactId>
-                <version>${trino.tpcds.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>*</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>

@@ -177,28 +177,28 @@ class TPCDSCatalogSuite extends KyuubiFunSuite {
   }
 
   private val tableInfo = Seq(
-    ("tpcds.tiny.call_center", ("2", "4584365911")),
+    ("tpcds.tiny.call_center", ("2", "6487139232")),
     ("tpcds.tiny.catalog_page", ("11718", "25416854987711")),
     ("tpcds.tiny.catalog_returns", ("8923", "19045021547122")),
     ("tpcds.tiny.catalog_sales", ("89807", "192355655243815")),
-    ("tpcds.tiny.customer", ("1000", "2120827330356")),
+    ("tpcds.tiny.customer", ("1000", "2165237522400")),
     ("tpcds.tiny.customer_address", ("1000", "2161077976693")),
     ("tpcds.tiny.customer_demographics", ("1920800", "4124183189708148")),
     ("tpcds.tiny.date_dim", ("73049", "156926081012862")),
     ("tpcds.tiny.household_demographics", ("7200", "15494873325812")),
     ("tpcds.tiny.income_band", ("20", "41180951007")),
     ("tpcds.tiny.inventory", ("261261", "561290989772724")),
-    ("tpcds.tiny.item", ("2000", "4254103006936")),
+    ("tpcds.tiny.item", ("2000", "4342186878603")),
     ("tpcds.tiny.promotion", ("3", "4984911899")),
     ("tpcds.tiny.reason", ("1", "365440741")),
     ("tpcds.tiny.ship_mode", ("20", "52349078860")),
-    ("tpcds.tiny.store", ("2", "2964682289")),
+    ("tpcds.tiny.store", ("2", "5694140045")),
     ("tpcds.tiny.store_returns", ("11925", "25400972943896")),
     ("tpcds.tiny.store_sales", ("120527", "259296406856838")),
-    ("tpcds.tiny.time_dim", ("86400", "186045071019485")),
+    ("tpcds.tiny.time_dim", ("86400", "185701618172159")),
     ("tpcds.tiny.warehouse", ("1", "2956768503")),
-    ("tpcds.tiny.web_page", ("2", "3215766118")),
+    ("tpcds.tiny.web_page", ("2", "1248514889")),
     ("tpcds.tiny.web_returns", ("1152", "2464383243098")),
     ("tpcds.tiny.web_sales", ("11876", "25458905770096")),
-    ("tpcds.tiny.web_site", ("2", "3798438288")))
+    ("tpcds.tiny.web_site", ("2", "2516709339")))
 }

@@ -19,8 +19,6 @@ package org.apache.kyuubi.spark.connector.tpcds
 
 import scala.collection.JavaConverters._
 
-import io.trino.tpcds.{Options, Table}
-import io.trino.tpcds.generator.CallCenterGeneratorColumn
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.InternalRow
@@ -30,6 +28,7 @@ import org.apache.spark.sql.util.CaseInsensitiveStringMap
 import org.apache.kyuubi.KyuubiFunSuite
 import org.apache.kyuubi.spark.connector.common.LocalSparkSession.withSparkSession
 import org.apache.kyuubi.spark.connector.tpcds.TPCDSConf._
+import org.apache.kyuubi.tpcds.gen.{RowRange, TpcdsGenerator, TpcdsTable => Table}
 
 class TPCDSTableSuite extends KyuubiFunSuite {
 
@@ -39,17 +38,15 @@ class TPCDSTableSuite extends KyuubiFunSuite {
         .set("spark.ui.enabled", "false")
         .set("spark.sql.catalogImplementation", "in-memory")
       withSparkSession(SparkSession.builder.config(sparkConf).getOrCreate()) { spark =>
-        val options = new Options
-        options.table = table.getName
-        options.scale = 10000
-        val session = options.toSession
         val conf = TPCDSConf(spark, CaseInsensitiveStringMap.empty())
-        val schema = new TPCDSTable(table.getName, options.scale, conf).schema
+        val schema = new TPCDSTable(table.getName, 10000, conf).schema
         val firstRow = Int.MaxValue.toLong - 2
         val lastRow = firstRow + 20
 
         def rows(first: Long, last: Long): Vector[InternalRow] = {
-          new KyuubiResultsIterator(table, first, last, session, schema)
+          new TPCDSRowCursorIterator(
+            TpcdsGenerator.range(table, 10000, new RowRange(first - 1, last)),
+            schema)
             .asScala.map(_.copy()).toVector
         }
 
@@ -112,66 +109,45 @@ class TPCDSTableSuite extends KyuubiFunSuite {
     })
   }
 
-  test("test nullable column") {
-    TPCDSSchemaUtils.BASE_TABLES.foreach { tpcdsTable =>
-      val tableName = tpcdsTable.getName
-      val sparkConf = new SparkConf().setMaster("local[*]")
-        .set("spark.ui.enabled", "false")
-        .set("spark.sql.catalogImplementation", "in-memory")
-        .set("spark.sql.catalog.tpcds", classOf[TPCDSCatalog].getName)
-      withSparkSession(SparkSession.builder.config(sparkConf).getOrCreate()) { spark =>
-        val sparkTable = spark.table(s"tpcds.sf1.$tableName")
-        var notNullBitMap = 0
-        sparkTable.schema.fields.zipWithIndex.foreach { case (field, i) =>
-          val index = TPCDSSchemaUtils.reviseNullColumnIndex(tpcdsTable, i)
-          if (!field.nullable) {
-            notNullBitMap |= 1 << index
+  test("all table schemas admit generated nulls and support typed row conversion") {
+    val sparkConf = new SparkConf().setMaster("local[1]").set("spark.ui.enabled", "false")
+      .set("spark.sql.catalogImplementation", "in-memory")
+    withSparkSession(SparkSession.builder.config(sparkConf).getOrCreate()) { spark =>
+      Table.values().foreach { table =>
+        val schema = new TPCDSTable(
+          table.getName,
+          10000,
+          TPCDSConf(spark, CaseInsensitiveStringMap.empty())).schema
+        val count = math.min(100L, new org.apache.kyuubi.tpcds.gen.Scale(10000).rows(table))
+        val expected = TpcdsGenerator.range(table, 10000, new RowRange(0, count))
+        val actual = new TPCDSRowCursorIterator(
+          TpcdsGenerator.range(table, 10000, new RowRange(0, count)),
+          schema)
+        while (expected.next()) {
+          assert(actual.hasNext, table.getName)
+          val row = actual.next()
+          schema.fields.zipWithIndex.foreach { case (field, i) =>
+            assert(row.isNullAt(i) == expected.isNull(i), s"${table.getName}.${field.name}")
+            if (row.isNullAt(i)) {
+              assert(field.nullable, s"${table.getName}.${field.name}")
+            } else {
+              import org.apache.spark.sql.types._
+              field.dataType match {
+                case IntegerType => assert(row.getInt(i).toLong == expected.getLong(i))
+                case LongType => assert(row.getLong(i) == expected.getLong(i))
+                case DateType => assert(row.getInt(i).toLong == expected.getLong(i) - 2440588L)
+                case d: DecimalType =>
+                  assert(row.getDecimal(
+                    i,
+                    d.precision,
+                    d.scale).toUnscaledLong == expected.getLong(i))
+                case _ => assert(row.getUTF8String(i).toString == expected.getString(i))
+              }
+            }
           }
         }
-        assert(tpcdsTable.getNotNullBitMap == notNullBitMap)
+        assert(!actual.hasNext, table.getName)
       }
-    }
-  }
-
-  test("test reviseColumnIndex") {
-    // io.trino.tpcds.row.CallCenterRow.getValues
-    val getValuesColumns = Array(
-      "CC_CALL_CENTER_SK",
-      "CC_CALL_CENTER_ID",
-      "CC_REC_START_DATE_ID",
-      "CC_REC_END_DATE_ID",
-      "CC_CLOSED_DATE_ID",
-      "CC_OPEN_DATE_ID",
-      "CC_NAME",
-      "CC_CLASS",
-      "CC_EMPLOYEES",
-      "CC_SQ_FT",
-      "CC_HOURS",
-      "CC_MANAGER",
-      "CC_MARKET_ID",
-      "CC_MARKET_CLASS",
-      "CC_MARKET_DESC",
-      "CC_MARKET_MANAGER",
-      "CC_DIVISION",
-      "CC_DIVISION_NAME",
-      "CC_COMPANY",
-      "CC_COMPANY_NAME",
-      "CC_STREET_NUMBER",
-      "CC_STREET_NAME",
-      "CC_STREET_TYPE",
-      "CC_SUITE_NUMBER",
-      "CC_CITY",
-      "CC_ADDRESS",
-      "CC_STATE",
-      "CC_ZIP",
-      "CC_COUNTRY",
-      "CC_GMT_OFFSET",
-      "CC_TAX_PERCENTAGE")
-    Table.CALL_CENTER.getColumns.zipWithIndex.map {
-      case (_, i) =>
-        assert(TPCDSSchemaUtils.reviseNullColumnIndex(Table.CALL_CENTER, i) ==
-          CallCenterGeneratorColumn.valueOf(getValuesColumns(i)).getGlobalColumnNumber -
-          CallCenterGeneratorColumn.CC_CALL_CENTER_SK.getGlobalColumnNumber)
     }
   }
 

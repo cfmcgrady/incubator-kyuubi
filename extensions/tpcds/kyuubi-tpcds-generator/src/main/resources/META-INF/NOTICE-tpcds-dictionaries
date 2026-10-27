@@ -1,0 +1,14 @@
+TPC-DS benchmark dictionary data
+
+This artifact contains unmodified dictionary resources from
+io.trino.tpcds:tpcds:1.4 (https://github.com/trinodb/tpcds), whose published
+Maven metadata declares Apache License, Version 2.0. Original paths are
+io/trino/tpcds/distribution/*.dst. The resources are relocated to
+org/apache/kyuubi/tpcds/gen/distribution/*.dst.
+
+These resources contain benchmark data maintained by the Transaction
+Processing Performance Council (TPC). Original legal notices, including
+attribution to Gradient Systems, are retained in the resource files.
+
+The new generator does not contain Trino generator classes or native
+TPC-DS source code. The TPC-DS name identifies the benchmark data format.

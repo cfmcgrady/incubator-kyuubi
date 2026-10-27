@@ -17,10 +17,9 @@
 
 package org.apache.kyuubi.spark.connector.tpcds
 
-import io.trino.tpcds.{Scaling, Table}
-import io.trino.tpcds.Table._
-
 import org.apache.kyuubi.spark.connector.tpcds.TPCDSSchemaUtils._
+import org.apache.kyuubi.tpcds.gen.{Scale, TpcdsTable => Table}
+import org.apache.kyuubi.tpcds.gen.TpcdsTable._
 
 // https://tpc.org/TPC_Documents_Current_Versions/pdf/TPC-DS_v3.2.0.pdf
 // Page 42 Table 3-2 Database Row Counts
@@ -92,7 +91,7 @@ object TPCDSStatisticsUtils {
       case (WEB_SALES, "10000") => 7199963324L
       case (WEB_SALES, "30000") => 21600036511L
       case (WEB_SALES, "100000") => 71999670164L
-      case (t, s) => new Scaling(s.toDouble).getRowCount(t)
+      case (t, s) => new Scale(s.toDouble).rows(t)
     }
   }
 

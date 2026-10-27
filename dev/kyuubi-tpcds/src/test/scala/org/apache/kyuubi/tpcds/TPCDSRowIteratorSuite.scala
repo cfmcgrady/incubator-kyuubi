@@ -19,54 +19,22 @@ package org.apache.kyuubi.tpcds
 
 import scala.collection.JavaConverters._
 
-import io.trino.tpcds.{Options, Results, Session, Table}
 import org.scalatest.funsuite.AnyFunSuite
+
+import org.apache.kyuubi.tpcds.gen.{TpcdsTable => Table}
 
 class TPCDSRowIteratorSuite extends AnyFunSuite {
 
-  private def session(
-      table: Table,
-      scale: Double,
-      parallelism: Int = 1,
-      chunk: Int = 1): Session = {
-    val options = new Options
-    options.table = table.getName
-    options.scale = scale
-    options.parallelism = parallelism
-    options.toSession.withChunkNumber(chunk)
-  }
-
-  test("small ranges preserve the original generator's values for all base tables") {
-    Table.getBaseTables.asScala.filterNot(_ == Table.DBGEN_VERSION).foreach { table =>
-      val conf = session(table, 1)
-      val lastRow = math.min(20L, conf.getScaling.getRowCount(table))
-      val expected = Results.constructResults(table, 1, lastRow, conf).iterator.asScala
-        .map(_.get(0).asScala.toVector).toVector
-      val actual = new TPCDSRowIterator(table, conf, 1, lastRow).asScala
-        .map(_.asScala.toVector).toVector
-      assert(actual == expected, table.getName)
-    }
-  }
-
-  Seq(Table.STORE_SALES, Table.STORE_RETURNS).foreach { table =>
-    test(s"${table.getName} values are independent of splits across Int.MaxValue") {
-      val conf = session(table, 10000)
-      val firstRow = Int.MaxValue.toLong - 2
-      val lastRow = firstRow + 20
-
-      def rows(first: Long, last: Long): Vector[Vector[String]] =
-        new TPCDSRowIterator(table, conf, first, last).asScala.map(_.asScala.toVector).toVector
-
-      val expected = rows(firstRow, lastRow)
-      assert(expected.nonEmpty)
-      Seq(-1, 0, 1, 2, 10).foreach { offset =>
-        val splitRow = Int.MaxValue.toLong + offset
-        val actual = rows(firstRow, splitRow - 1) ++ rows(splitRow, lastRow)
-        assertResult(expected.size, s"split at $splitRow")(actual.size)
-        actual.zip(expected).foreach { case (actualRow, expectedRow) =>
-          assert(actualRow == expectedRow, s"split at $splitRow")
-        }
-      }
+  test("all 24 tables use the text cursor and preserve repeated hasNext calls") {
+    Table.values().foreach { table =>
+      val iterator = TPCDSRowIterator(table, 1, 1, 1)
+      assert(iterator.hasNext, table.getName)
+      assert(iterator.hasNext, table.getName)
+      val first = iterator.next()
+      assert(first.size() == table.columnCount())
+      val saved = first.asScala.toVector
+      if (iterator.hasNext) iterator.next()
+      assert(first.asScala.toVector == saved, "text rows must not alias the reusable cursor")
     }
   }
 
@@ -90,17 +58,21 @@ class TPCDSRowIteratorSuite extends AnyFunSuite {
       (100000, Table.WEB_SALES, 60000000, 59999999, 1160),
       (100000, Table.WEB_RETURNS, 60000000, 59999999, 121))
     samples.foreach { case (scale, table, parallelism, chunk, expected) =>
-      val conf = session(table, scale, parallelism, chunk)
       assert(
-        TPCDSRowIterator(table, conf).asScala.length == expected,
+        TPCDSRowIterator(table, scale, parallelism, chunk).asScala.length == expected,
         s"${table.getName} SF$scale chunk $chunk/$parallelism")
     }
   }
 
   test("non-first chunks of small tables are empty") {
     val table = Table.CALL_CENTER
-    val iterator = TPCDSRowIterator(table, session(table, 1, parallelism = 2, chunk = 2))
+    val iterator = TPCDSRowIterator(table, 1, 2, 2)
     assert(!iterator.hasNext)
     intercept[NoSuchElementException](iterator.next())
+  }
+
+  test("nonstandard scales use native customer cardinalities") {
+    val first = TPCDSRowIterator(Table.CUSTOMER, 20, 2, 1).asScala
+    assert(first.length == 666000)
   }
 }

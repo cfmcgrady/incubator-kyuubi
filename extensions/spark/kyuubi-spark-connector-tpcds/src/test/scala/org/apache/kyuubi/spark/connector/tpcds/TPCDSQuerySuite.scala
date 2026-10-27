@@ -51,6 +51,8 @@ class TPCDSQuerySuite extends KyuubiFunSuite {
     val sparkConf = new SparkConf().setMaster("local[*]")
       .set("spark.ui.enabled", "false")
       .set("spark.sql.catalogImplementation", "in-memory")
+      // Tiny can leave query denominators empty; retain the suite's Spark 3.x semantics.
+      .set("spark.sql.ansi.enabled", "false")
       .set("spark.sql.catalog.tpcds", classOf[TPCDSCatalog].getName)
       .set("spark.sql.catalog.tpcds.useTableSchema_2_6", "true")
     withSparkSession(SparkSession.builder.config(sparkConf).getOrCreate()) { spark =>
